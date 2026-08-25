@@ -1,0 +1,13 @@
+{
+  "name": "cvs-store-survey-mock",
+  "version": "1.0.0",
+  "description": "コンビニ店舗調査アプリ - 調査対象店舗選択ポップアップ モック一式",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

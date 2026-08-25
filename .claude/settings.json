@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node server.js)",
+      "Bash(curl -s \"http://localhost:3000/api/options\")",
+      "Bash(curl -s \"http://localhost:3000/api/stores/suggest?q=%E3%82%BB%E3%83%96%E3%83%B3\")",
+      "Bash(curl -s -X POST \"http://localhost:3000/api/target-store/register\" -H \"Content-Type: application/json\" -d '{\"id\":null,\"storeName\":\"テスト店\",\"chainName\":\"セブンイレブン\",\"locationType\":\"駅前\",\"prefecture\":\"東京都\"}')",
+      "Bash(curl -s \"http://localhost:3000/\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:3000/js/jquery-1.7.2.min.js\")",
+      "Bash(node \"C:/Users/0216i/AppData/Local/Temp/claude/c--my-dev-20260817-simple/8c2e8e13-7f1a-4c9c-9ca6-8abc4b3fc721/scratchpad/verify.js\")",
+      "Bash(node _verify.js)"
+    ]
+  }
+}

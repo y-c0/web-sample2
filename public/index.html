@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>コンビニ店舗調査 - デモホスト画面</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="page">
+  <h1>コンビニ店舗調査アプリ（デモホスト画面）</h1>
+  <p class="page-desc">
+    実際のアプリでは調査結果登録画面などから起動される想定の「調査対象店舗を選ぶ」ポップアップの動作確認用ページです。<br>
+    お気に入り店舗のCookieは本来は別画面で設定される前提のため、下のボタンで検証用にセットできます。
+  </p>
+
+  <section class="panel">
+    <h2>1. お気に入り店舗Cookie（検証用）</h2>
+    <div class="host-controls">
+      <button type="button" id="btnSeedFavorites" class="btn btn-secondary">お気に入りサンプルをCookieにセット</button>
+      <button type="button" id="btnClearFavorites" class="btn btn-secondary">お気に入りCookieをクリア</button>
+      <span id="favoriteCookieStatus" class="cookie-status"></span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>2. 調査対象店舗の選択</h2>
+    <div class="host-controls">
+      <button type="button" id="btnOpenStoreSelect" class="btn btn-primary">調査対象店舗を選ぶ</button>
+    </div>
+
+    <div id="selectedResult" class="selected-result" style="display:none;">
+      <h3>選択された調査対象店舗</h3>
+      <table class="result-table">
+        <tbody>
+          <tr><th>店舗名</th><td id="resultStoreName"></td></tr>
+          <tr><th>チェーン名</th><td id="resultChainName"></td></tr>
+          <tr><th>立地条件</th><td id="resultLocationType"></td></tr>
+          <tr><th>都道府県</th><td id="resultPrefecture"></td></tr>
+          <tr><th>店舗マスタID</th><td id="resultStoreId"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<!-- 調査対象店舗選択ポップアップ（モーダル） -->
+<div id="storeSelectModalOverlay" class="modal-overlay" style="display:none;">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="storeSelectModalTitle">
+    <div class="modal-header">
+      <h2 id="storeSelectModalTitle">調査対象店舗を選ぶ</h2>
+      <button type="button" id="btnModalClose" class="modal-close" aria-label="閉じる">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-row">
+        <label>お気に入り店舗</label>
+        <div id="favoritesList" class="favorites-list"></div>
+        <p id="favoritesEmptyMessage" class="hint" style="display:none;">お気に入り店舗が登録されていません。</p>
+      </div>
+
+      <div class="form-row">
+        <label for="storeNameInput">店舗名 <span class="required">必須</span></label>
+        <div class="autocomplete-wrapper">
+          <input type="text" id="storeNameInput" autocomplete="off" placeholder="店舗名を入力してください">
+          <ul id="suggestList" class="suggest-list" style="display:none;"></ul>
+        </div>
+        <input type="hidden" id="selectedStoreId" value="">
+        <p id="newStoreHint" class="hint" style="display:none;">店舗マスタに未登録の店舗として新規登録されます。チェーン名などを選択してください。</p>
+      </div>
+
+      <div class="form-row">
+        <label for="chainSelect">チェーン名 <span class="required">必須</span></label>
+        <select id="chainSelect"><option value="">選択してください</option></select>
+      </div>
+
+      <div class="form-row">
+        <label for="locationSelect">立地条件 <span class="required">必須</span></label>
+        <select id="locationSelect"><option value="">選択してください</option></select>
+      </div>
+
+      <div class="form-row">
+        <label for="prefectureSelect">都道府県 <span class="required">必須</span></label>
+        <select id="prefectureSelect"><option value="">選択してください</option></select>
+      </div>
+
+      <p id="formErrorMessage" class="error-message" style="display:none;"></p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" id="btnCancel" class="btn btn-secondary">キャンセル</button>
+      <button type="button" id="btnConfirm" class="btn btn-primary">決定</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/jquery-1.7.2.min.js"></script>
+<script src="js/store-select.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
