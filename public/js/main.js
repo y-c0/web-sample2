@@ -6,7 +6,6 @@
 (function ($) {
   'use strict';
 
-  var FAVORITE_COOKIE = 'favoriteStores';
   var SAMPLE_FAVORITES = [
     'セブンイレブン渋谷駅前店',
     'ローソン池袋東口店',
@@ -14,38 +13,14 @@
     '未登録の個人経営店'
   ];
 
-  function setCookie(name, value, days) {
-    var expires = '';
-    if (days) {
-      var date = new Date();
-      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-      expires = '; expires=' + date.toUTCString();
-    }
-    document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/';
-  }
-
-  function deleteCookie(name) {
-    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
-  }
-
-  function getCookie(name) {
-    var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-    return match ? decodeURIComponent(match[1]) : null;
-  }
-
   function updateFavoriteStatus() {
-    var raw = getCookie(FAVORITE_COOKIE);
+    var favorites = FavoritesUtil.getNames();
     var $status = $('#favoriteCookieStatus');
-    if (!raw) {
+    if (favorites.length === 0) {
       $status.text('お気に入りCookie: 未設定');
       return;
     }
-    try {
-      var list = JSON.parse(raw);
-      $status.text('お気に入りCookie: ' + list.length + '件登録済み');
-    } catch (e) {
-      $status.text('お気に入りCookie: 不正な形式');
-    }
+    $status.text('お気に入りCookie: ' + favorites.length + '件登録済み');
   }
 
   function renderSelectedResult(store) {
@@ -61,13 +36,13 @@
     updateFavoriteStatus();
 
     $('#btnSeedFavorites').on('click', function () {
-      setCookie(FAVORITE_COOKIE, JSON.stringify(SAMPLE_FAVORITES), 7);
+      FavoritesUtil.saveNames(SAMPLE_FAVORITES);
       updateFavoriteStatus();
       alert('お気に入りサンプルをCookieにセットしました。');
     });
 
     $('#btnClearFavorites').on('click', function () {
-      deleteCookie(FAVORITE_COOKIE);
+      CookieUtil.remove('favoriteStores');
       updateFavoriteStatus();
     });
 
@@ -75,8 +50,16 @@
       StoreSelect.open();
     });
 
+    $('#btnOpenFavoriteEdit').on('click', function () {
+      FavoriteEdit.open();
+    });
+
     $(document).on('store-selected', function (e, store) {
       renderSelectedResult(store);
+    });
+
+    $(document).on('favorites-updated', function () {
+      updateFavoriteStatus();
     });
   });
 })(jQuery);

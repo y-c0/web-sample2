@@ -24,13 +24,17 @@ app.get('/api/stores/suggest', (req, res) => {
   res.json(matches);
 });
 
-// チェーン名/立地条件/都道府県の選択肢一覧
-app.get('/api/options', (req, res) => {
-  res.json({
-    chains: CHAINS,
-    locations: LOCATION_TYPES,
-    prefectures: PREFECTURES
-  });
+// チェーン名/立地条件/都道府県の選択肢一覧（既存アプリに合わせてPOST・bodyは空JSON）
+app.post('/api/chains', (req, res) => {
+  res.json(CHAINS);
+});
+
+app.post('/api/locations', (req, res) => {
+  res.json(LOCATION_TYPES);
+});
+
+app.post('/api/prefectures', (req, res) => {
+  res.json(PREFECTURES);
 });
 
 // 調査対象店舗の確定登録（モック）

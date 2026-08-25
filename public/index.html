@@ -15,8 +15,9 @@
   </p>
 
   <section class="panel">
-    <h2>1. お気に入り店舗Cookie（検証用）</h2>
+    <h2>1. お気に入り店舗</h2>
     <div class="host-controls">
+      <button type="button" id="btnOpenFavoriteEdit" class="btn btn-primary">お気に入り店舗を編集</button>
       <button type="button" id="btnSeedFavorites" class="btn btn-secondary">お気に入りサンプルをCookieにセット</button>
       <button type="button" id="btnClearFavorites" class="btn btn-secondary">お気に入りCookieをクリア</button>
       <span id="favoriteCookieStatus" class="cookie-status"></span>
@@ -94,8 +95,33 @@
   </div>
 </div>
 
+<!-- お気に入り店舗編集ポップアップ（モーダル） -->
+<div id="favoriteEditModalOverlay" class="modal-overlay" style="display:none;">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="favoriteEditModalTitle">
+    <div class="modal-header">
+      <h2 id="favoriteEditModalTitle">お気に入り店舗を編集</h2>
+      <button type="button" id="btnFavoriteEditModalClose" class="modal-close" aria-label="閉じる">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="hint">店舗名を最大10件まで入力できます。入力すると店舗マスタから候補をサジェストします。空欄の行は保存されません。</p>
+      <div id="favoriteEditRows"></div>
+      <p id="favoriteEditErrorMessage" class="error-message" style="display:none;"></p>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" id="btnFavoriteEditCancel" class="btn btn-secondary">キャンセル</button>
+      <button type="button" id="btnFavoriteEditSave" class="btn btn-primary">保存</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/jquery-1.7.2.min.js"></script>
+<script src="js/cookie-util.js"></script>
+<script src="js/favorites-util.js"></script>
+<script src="js/store-suggest.js"></script>
 <script src="js/store-select.js"></script>
+<script src="js/favorite-edit.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

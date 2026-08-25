@@ -10,8 +10,8 @@ var StoreSelect = (function ($) {
     $chainSelect, $locationSelect, $prefectureSelect,
     $favoritesList, $favoritesEmptyMessage, $newStoreHint, $formErrorMessage;
 
-  var debounceTimer = null;
   var optionsLoaded = false;
+  var suggestController = null;
 
   function cacheElements() {
     $overlay = $('#storeSelectModalOverlay');
@@ -38,12 +38,16 @@ var StoreSelect = (function ($) {
       if (e.keyCode === 27 && $overlay.is(':visible')) close();
     });
 
-    $storeNameInput.on('input', handleStoreNameInput);
-
-    $(document).on('click', function (e) {
-      if (!$(e.target).closest('.autocomplete-wrapper').length) {
-        hideSuggestList();
-      }
+    suggestController = StoreSuggest.attach({
+      $input: $storeNameInput,
+      $list: $suggestList,
+      emptyMessage: '該当する店舗がありません（新規店舗として登録できます）',
+      onChange: function () {
+        // 店舗名を手入力で変更したら既存店舗との紐付けを解除する（任意店舗として扱う）
+        $selectedStoreIdInput.val('');
+        $newStoreHint.hide();
+      },
+      onSelect: applyStore
     });
 
     $('#btnConfirm').on('click', handleConfirm);
@@ -60,7 +64,7 @@ var StoreSelect = (function ($) {
 
   function close() {
     $overlay.hide();
-    hideSuggestList();
+    suggestController.hide();
   }
 
   function resetForm() {
@@ -71,7 +75,7 @@ var StoreSelect = (function ($) {
     $prefectureSelect.val('');
     $newStoreHint.hide();
     $formErrorMessage.hide().text('');
-    hideSuggestList();
+    suggestController.hide();
   }
 
   function loadOptionsIfNeeded(callback) {
@@ -79,12 +83,27 @@ var StoreSelect = (function ($) {
       callback();
       return;
     }
-    $.getJSON('/api/options', function (data) {
-      populateSelect($chainSelect, data.chains);
-      populateSelect($locationSelect, data.locations);
-      populateSelect($prefectureSelect, data.prefectures);
+    $.when(
+      fetchOptionList('/api/chains'),
+      fetchOptionList('/api/locations'),
+      fetchOptionList('/api/prefectures')
+    ).done(function (chains, locations, prefectures) {
+      // $.when に複数のDeferredを渡すと各引数は [data, textStatus, jqXHR] になる
+      populateSelect($chainSelect, chains[0]);
+      populateSelect($locationSelect, locations[0]);
+      populateSelect($prefectureSelect, prefectures[0]);
       optionsLoaded = true;
       callback();
+    });
+  }
+
+  function fetchOptionList(url) {
+    return $.ajax({
+      url: url,
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({}),
+      dataType: 'json'
     });
   }
 
@@ -94,25 +113,8 @@ var StoreSelect = (function ($) {
     });
   }
 
-  function getCookie(name) {
-    var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-    return match ? decodeURIComponent(match[1]) : null;
-  }
-
-  function getFavorites() {
-    var raw = getCookie('favoriteStores');
-    if (!raw) return [];
-    try {
-      var list = JSON.parse(raw);
-      if (!$.isArray(list)) return [];
-      return list.slice(0, 10);
-    } catch (e) {
-      return [];
-    }
-  }
-
   function renderFavorites() {
-    var favorites = getFavorites();
+    var favorites = FavoritesUtil.getNames();
     $favoritesList.empty();
 
     if (favorites.length === 0) {
@@ -132,7 +134,7 @@ var StoreSelect = (function ($) {
 
   function selectFavorite(name) {
     $storeNameInput.val(name);
-    hideSuggestList();
+    suggestController.hide();
 
     $.getJSON('/api/stores/suggest', { q: name }, function (results) {
       var exact = findExactMatch(results, name);
@@ -163,60 +165,6 @@ var StoreSelect = (function ($) {
     $locationSelect.val(store.locationType);
     $prefectureSelect.val(store.prefecture);
     $newStoreHint.hide();
-  }
-
-  function handleStoreNameInput() {
-    // 店舗名を手入力で変更したら既存店舗との紐付けを解除する（任意店舗として扱う）
-    $selectedStoreIdInput.val('');
-    $newStoreHint.hide();
-
-    var value = $.trim($storeNameInput.val());
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
-
-    if (!value) {
-      hideSuggestList();
-      return;
-    }
-
-    debounceTimer = setTimeout(function () {
-      fetchSuggestions(value);
-    }, 300);
-  }
-
-  function fetchSuggestions(value) {
-    $.getJSON('/api/stores/suggest', { q: value }, function (results) {
-      // 検索中に入力が変わっていたら結果を破棄
-      if ($.trim($storeNameInput.val()) !== value) return;
-      renderSuggestList(results);
-    });
-  }
-
-  function renderSuggestList(results) {
-    $suggestList.empty();
-
-    if (results.length === 0) {
-      $suggestList.append('<li class="suggest-empty">該当する店舗がありません（新規店舗として登録できます）</li>');
-      $suggestList.show();
-      return;
-    }
-
-    $.each(results, function (i, store) {
-      var $item = $('<li class="suggest-item"></li>');
-      $item.append($('<span class="suggest-name"></span>').text(store.storeName));
-      $item.append($('<span class="suggest-meta"></span>').text(store.chainName + ' / ' + store.prefecture));
-      $item.on('click', function () {
-        applyStore(store);
-        hideSuggestList();
-      });
-      $suggestList.append($item);
-    });
-    $suggestList.show();
-  }
-
-  function hideSuggestList() {
-    $suggestList.hide().empty();
   }
 
   function handleConfirm() {
