@@ -12,6 +12,7 @@ var StoreSelect = (function ($) {
 
   var optionsLoaded = false;
   var suggestController = null;
+  var appliedStore = null;
 
   function cacheElements() {
     $overlay = $('#storeSelectModalOverlay');
@@ -42,13 +43,13 @@ var StoreSelect = (function ($) {
       $input: $storeNameInput,
       $list: $suggestList,
       emptyMessage: '該当する店舗がありません（新規店舗として登録できます）',
-      onChange: function () {
-        // 店舗名を手入力で変更したら既存店舗との紐付けを解除する（任意店舗として扱う）
-        $selectedStoreIdInput.val('');
-        $newStoreHint.hide();
-      },
+      onChange: refreshNewStoreHint,
       onSelect: applyStore
     });
+
+    $chainSelect.on('change', refreshNewStoreHint);
+    $locationSelect.on('change', refreshNewStoreHint);
+    $prefectureSelect.on('change', refreshNewStoreHint);
 
     $('#btnConfirm').on('click', handleConfirm);
   }
@@ -73,6 +74,7 @@ var StoreSelect = (function ($) {
     $chainSelect.val('');
     $locationSelect.val('');
     $prefectureSelect.val('');
+    appliedStore = null;
     $newStoreHint.hide();
     $formErrorMessage.hide().text('');
     suggestController.hide();
@@ -141,8 +143,9 @@ var StoreSelect = (function ($) {
       if (exact) {
         applyStore(exact);
       } else {
+        appliedStore = null;
         $selectedStoreIdInput.val('');
-        $newStoreHint.show();
+        refreshNewStoreHint();
       }
     });
   }
@@ -159,43 +162,74 @@ var StoreSelect = (function ($) {
   }
 
   function applyStore(store) {
+    appliedStore = store;
     $storeNameInput.val(store.storeName);
     $selectedStoreIdInput.val(store.id);
     $chainSelect.val(store.chainName);
     $locationSelect.val(store.locationType);
     $prefectureSelect.val(store.prefecture);
-    $newStoreHint.hide();
+    refreshNewStoreHint();
+  }
+
+  function getCurrentValues() {
+    return {
+      storeName: $.trim($storeNameInput.val()),
+      chainName: $chainSelect.val(),
+      locationType: $locationSelect.val(),
+      prefecture: $prefectureSelect.val()
+    };
+  }
+
+  // 候補/お気に入りから適用した店舗と、フォームの現在値が完全一致するかどうか。
+  // 1項目でも変更されていれば「既存ではない店舗」として新規登録扱いにする。
+  function isExistingStore(values) {
+    return !!appliedStore &&
+      values.storeName === appliedStore.storeName &&
+      values.chainName === appliedStore.chainName &&
+      values.locationType === appliedStore.locationType &&
+      values.prefecture === appliedStore.prefecture;
+  }
+
+  function refreshNewStoreHint() {
+    var values = getCurrentValues();
+    if (values.storeName && !isExistingStore(values)) {
+      $newStoreHint.show();
+    } else {
+      $newStoreHint.hide();
+    }
   }
 
   function handleConfirm() {
-    var storeName = $.trim($storeNameInput.val());
-    var chainName = $chainSelect.val();
-    var locationType = $locationSelect.val();
-    var prefecture = $prefectureSelect.val();
-    var storeId = $selectedStoreIdInput.val() || null;
+    var values = getCurrentValues();
 
-    if (!storeName || !chainName || !locationType || !prefecture) {
+    if (!values.storeName || !values.chainName || !values.locationType || !values.prefecture) {
       $formErrorMessage.text('店舗名・チェーン名・立地条件・都道府県はすべて必須です。').show();
       return;
     }
     $formErrorMessage.hide();
 
-    var payload = {
-      id: storeId ? Number(storeId) : null,
-      storeName: storeName,
-      chainName: chainName,
-      locationType: locationType,
-      prefecture: prefecture
-    };
+    if (isExistingStore(values)) {
+      // 既存店舗：登録APIは呼ばず、店舗IDを親画面に返すのみ
+      var existingPayload = $.extend({ id: appliedStore.id }, values);
+      close();
+      $(document).trigger('store-selected', [existingPayload]);
+      return;
+    }
+
+    if (!window.confirm('新規店舗として登録しますか？')) {
+      return;
+    }
+
+    var newPayload = $.extend({ id: null }, values);
 
     $.ajax({
       url: '/api/target-store/register',
       type: 'POST',
       contentType: 'application/json',
-      data: JSON.stringify(payload),
+      data: JSON.stringify(newPayload),
       success: function () {
         close();
-        $(document).trigger('store-selected', [payload]);
+        $(document).trigger('store-selected', [newPayload]);
       },
       error: function () {
         $formErrorMessage.text('登録に失敗しました。時間をおいて再度お試しください。').show();
