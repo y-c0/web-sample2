@@ -125,12 +125,12 @@ app.put(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
 
   const {
     id_cvs_store, nm_cvs_store,
-    cd_cvs_chain, nm_cd_cvs_chain,
+    cd_cvs_chain, nm_cvs_chain,
     cd_cvs_location, nm_cvs_location,
-    id_region, nm_cd_region
+    cd_region, nm_region
   } = req.body || {};
 
-  if (!nm_cvs_store || !cd_cvs_chain || !cd_cvs_location || !id_region) {
+  if (!nm_cvs_store || !cd_cvs_chain || !cd_cvs_location || !cd_region) {
     return res.status(400).json({ success: false, message: '必須項目が不足しています。' });
   }
 
@@ -138,11 +138,11 @@ app.put(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
     id_cvs_store: id_cvs_store || nextStoreId++,
     nm_cvs_store,
     cd_cvs_chain,
-    nm_cd_cvs_chain,
+    nm_cvs_chain,
     cd_cvs_location,
     nm_cvs_location,
-    id_region,
-    nm_cd_region,
+    cd_region,
+    nm_region,
     registeredAt: new Date().toISOString()
   };
   registeredTargets.push(record);

@@ -106,9 +106,9 @@ CvsStoreWidget.StoreSelect = (function ($) {
       fetchOptionList(API_ENDPOINTS.PREFECTURES)
     ).done(function (chains, locations, prefectures) {
       // $.when に複数のDeferredを渡すと各引数は [data, textStatus, jqXHR] になる
-      populateSelect($chainSelect, chains[0], 'cd_cvs_chain', 'nm_cd_cvs_chain');
+      populateSelect($chainSelect, chains[0], 'cd_cvs_chain', 'nm_cvs_chain');
       populateSelect($locationSelect, locations[0], 'cd_cvs_location', 'nm_cvs_location');
-      populateSelect($prefectureSelect, prefectures[0], 'id_region', 'nm_cd_region');
+      populateSelect($prefectureSelect, prefectures[0], 'cd_region', 'nm_region');
       optionsLoaded = true;
       callback();
     });
@@ -187,7 +187,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
     $selectedStoreIdInput.val(store.id_cvs_store);
     $chainSelect.val(store.cd_cvs_chain);
     $locationSelect.val(store.cd_cvs_location);
-    $prefectureSelect.val(store.id_region);
+    $prefectureSelect.val(store.cd_region);
     refreshNewStoreHint();
   }
 
@@ -195,11 +195,11 @@ CvsStoreWidget.StoreSelect = (function ($) {
     return {
       nm_cvs_store: $.trim($storeNameInput.val()),
       cd_cvs_chain: toId($chainSelect.val()),
-      nm_cd_cvs_chain: $chainSelect.find('option:selected').text(),
+      nm_cvs_chain: $chainSelect.find('option:selected').text(),
       cd_cvs_location: toId($locationSelect.val()),
       nm_cvs_location: $locationSelect.find('option:selected').text(),
-      id_region: toId($prefectureSelect.val()),
-      nm_cd_region: $prefectureSelect.find('option:selected').text()
+      cd_region: toId($prefectureSelect.val()),
+      nm_region: $prefectureSelect.find('option:selected').text()
     };
   }
 
@@ -211,7 +211,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
       values.nm_cvs_store === appliedStore.nm_cvs_store &&
       values.cd_cvs_chain === appliedStore.cd_cvs_chain &&
       values.cd_cvs_location === appliedStore.cd_cvs_location &&
-      values.id_region === appliedStore.id_region;
+      values.cd_region === appliedStore.cd_region;
   }
 
   function refreshNewStoreHint() {
@@ -228,7 +228,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
 
     var values = getCurrentValues();
 
-    if (!values.nm_cvs_store || !values.cd_cvs_chain || !values.cd_cvs_location || !values.id_region) {
+    if (!values.nm_cvs_store || !values.cd_cvs_chain || !values.cd_cvs_location || !values.cd_region) {
       $formErrorMessage.text('店舗名・チェーン名・立地条件・都道府県はすべて必須です。').show();
       return;
     }
