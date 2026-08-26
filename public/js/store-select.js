@@ -86,9 +86,9 @@ var StoreSelect = (function ($) {
       return;
     }
     $.when(
-      fetchOptionList('/api/chains'),
-      fetchOptionList('/api/locations'),
-      fetchOptionList('/api/prefectures')
+      fetchOptionList(API_ENDPOINTS.CHAINS),
+      fetchOptionList(API_ENDPOINTS.LOCATIONS),
+      fetchOptionList(API_ENDPOINTS.PREFECTURES)
     ).done(function (chains, locations, prefectures) {
       // $.when に複数のDeferredを渡すと各引数は [data, textStatus, jqXHR] になる
       populateSelect($chainSelect, chains[0]);
@@ -138,7 +138,7 @@ var StoreSelect = (function ($) {
     $storeNameInput.val(name);
     suggestController.hide();
 
-    $.getJSON('/api/stores/suggest', { q: name }, function (results) {
+    $.getJSON(API_ENDPOINTS.SUGGEST_STORES, { q: name }, function (results) {
       var exact = findExactMatch(results, name);
       if (exact) {
         applyStore(exact);
@@ -223,7 +223,7 @@ var StoreSelect = (function ($) {
     var newPayload = $.extend({ id: null }, values);
 
     $.ajax({
-      url: '/api/target-store/register',
+      url: API_ENDPOINTS.REGISTER_TARGET_STORE,
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(newPayload),

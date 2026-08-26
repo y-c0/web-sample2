@@ -35,6 +35,7 @@ npm start（またはnode server.js）で起動し、http://localhost:3000で動
 
 
 
+＝＝＝＝＝＝＝
 
 お気に入りを追加するポップアップ画面も用意したい。
 ・テキスト入力欄を10個並べる
@@ -56,5 +57,41 @@ public/js/cookie-util.js（新規） — Cookie get/set/removeの共通化
 public/js/store-select.js — 上記共通部品を使うようリファクタリング（重複コード削除）
 public/js/main.js — 共通部品を使うよう更新、お気に入り編集ポップアップの起動・保存イベントを配線
 ブラウザ実機で「サジェストから選択」「マスタに無い任意店舗名を入力」「空欄行は保存されない」「保存後Cookieに反映され店舗選択ポップアップのお気に入り一覧にも即反映される」「再度開くと保存済みの内容が復元される」ことまで確認済みです。
+
+＝＝＝＝＝＝＝
+
+・APIのURLを定数化して、jsファイルの先頭に持ってきてほしい。
+・社内の本番APIと切り替えられるようにしたい。
+・社内のサーバはログインが必要なので、社内アプリでログインしたときのcookie情報を手書きでどこかに書き、社内APIにテスト接続をしたい
+
+API URLの定数化
+
+public/js/api-config.js（新規）— クライアント側APIパスをAPI_ENDPOINTSとして定義し、index.htmlで最初に読み込むよう配置
+store-suggest.js・store-select.jsの直書きURLをすべてAPI_ENDPOINTS.xxx参照に置き換え
+server.js側にもROUTES定数を追加し、自サーバーが公開するパスを一箇所にまとめた
+モック／社内本番APIの切り替え
+
+ブラウザJSは仕様上Cookieヘッダを手動付与できないため、クライアントは常に自分のExpressサーバー（相対パス）だけを呼び、モード切り替えとCookie付与はサーバー側で行う構成にしました
+config.js — API_MODE('mock'/'production')、本番ベースURL・パス・Cookieのデフォルト定義。config.local.jsがあれば自動でマージ
+config.local.example.js — 手書き設定のテンプレート。コピーしてconfig.local.jsとして使う
+.gitignoreにconfig.local.jsを追加（ログインCookieを誤ってコミットしないため）
+社内APIへのテスト接続
+
+config.local.example.jsをconfig.local.jsにコピー
+社内アプリにログイン済みブラウザの開発者ツール(Network)からcookieヘッダの値をコピーしPRODUCTION_COOKIEに貼り付け
+PRODUCTION_BASE_URLを実際の社内APIオリジンに書き換え、API_MODE: 'production'に
+node server.jsで起動すると、/api/...へのアクセスがサーバー側で該当Cookie付きの本番APIリクエストに変換される（server.jsのproxyToProduction）
+ダミーの社内APIサーバーを一時的に立てて、Cookieが正しく転送されること・Cookie不一致時は401がそのまま透過されることを確認済みです（検証用ファイルは削除済み）。現在はAPI_MODE=mock（既定）でhttp://localhost:3000が起動中です。
+
+
+
+
+
+
+
+
+
+
+
 
 

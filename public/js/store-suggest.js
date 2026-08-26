@@ -46,7 +46,7 @@ var StoreSuggest = (function ($) {
     });
 
     function fetchSuggestions(value) {
-      $.getJSON('/api/stores/suggest', { q: value }, function (results) {
+      $.getJSON(API_ENDPOINTS.SUGGEST_STORES, { q: value }, function (results) {
         // 検索中に入力が変わっていたら結果を破棄
         if ($.trim($input.val()) !== value) return;
         render(results);

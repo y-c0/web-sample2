@@ -1,1 +1,4 @@
 node_modules/
+
+# 社内本番APIのログインCookieなど秘密情報を含む個人設定（config.local.example.js を元に作成する）
+config.local.js
