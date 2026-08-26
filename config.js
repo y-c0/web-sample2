@@ -17,11 +17,11 @@ const defaults = {
   API_MODE: 'mock',
   PRODUCTION_BASE_URL: '',
   PRODUCTION_PATHS: {
-    SUGGEST_STORES: '/api/stores/suggest',
-    CHAINS: '/api/chains',
-    LOCATIONS: '/api/locations',
-    PREFECTURES: '/api/prefectures',
-    REGISTER_TARGET_STORE: '/api/target-store/register'
+    SUGGEST_STORES: '/api/stores/search',
+    CHAINS: '/api/cvs_chains',
+    LOCATIONS: '/api/cvs_locations',
+    PREFECTURES: '/api/regions',
+    REGISTER_TARGET_STORE: '/api/stores'
   },
   // 社内アプリにログインした際のCookieヘッダの値（config.local.js で上書きする想定。中身の説明は config.local.example.js を参照）
   PRODUCTION_COOKIE: ''

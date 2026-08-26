@@ -23,11 +23,11 @@ module.exports = {
 
   // 社内本番API側の実際のエンドポイントパスに合わせて必要なら書き換える
   PRODUCTION_PATHS: {
-    SUGGEST_STORES: '/api/stores/suggest',
-    CHAINS: '/api/chains',
-    LOCATIONS: '/api/locations',
-    PREFECTURES: '/api/prefectures',
-    REGISTER_TARGET_STORE: '/api/target-store/register'
+    SUGGEST_STORES: '/api/stores/search',
+    CHAINS: '/api/cvs_chains',
+    LOCATIONS: '/api/cvs_locations',
+    PREFECTURES: '/api/regions',
+    REGISTER_TARGET_STORE: '/api/stores'
   },
 
   // 例: 'JSESSIONID=xxxxxxxxxxxxxxxx; other_session=yyyyyyyy'

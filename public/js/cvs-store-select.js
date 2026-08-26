@@ -7,11 +7,11 @@ var StoreSelect = (function ($) {
   'use strict';
 
   var API_ENDPOINTS = {
-    SUGGEST_STORES: '/api/stores/suggest',
-    CHAINS: '/api/chains',
-    LOCATIONS: '/api/locations',
-    PREFECTURES: '/api/prefectures',
-    REGISTER_TARGET_STORE: '/api/target-store/register'
+    SUGGEST_STORES: '/api/stores/search',
+    CHAINS: '/api/cvs_chains',
+    LOCATIONS: '/api/cvs_locations',
+    PREFECTURES: '/api/regions',
+    REGISTER_TARGET_STORE: '/api/stores'
   };
 
   var $overlay, $storeNameInput, $suggestList, $selectedStoreIdInput,
@@ -228,14 +228,16 @@ var StoreSelect = (function ($) {
       return;
     }
 
+    // 新規店舗はIDをサーバー側で採番するため、リクエスト時点ではidを送らない
     var newPayload = $.extend({ id: null }, values);
 
     $.ajax({
       url: API_ENDPOINTS.REGISTER_TARGET_STORE,
-      type: 'POST',
+      type: 'PUT',
       contentType: 'application/json',
       data: JSON.stringify(newPayload),
-      success: function () {
+      success: function (response) {
+        newPayload.id = response.id;
         close();
         $(document).trigger('store-selected', [newPayload]);
       },

@@ -5,13 +5,13 @@ const path = require('path');
 const { CHAINS, LOCATION_TYPES, PREFECTURES, STORES } = require('./data/stores');
 const config = require('./config');
 
-// このExpressアプリが公開するAPIのパス（クライアント側 public/js/api-config.js の値と一致させる）
+// このExpressアプリが公開するAPIのパス（クライアント側の各jsファイル先頭にある API_ENDPOINTS の値と一致させる）
 const ROUTES = {
-  SUGGEST_STORES: '/api/stores/suggest',
-  CHAINS: '/api/chains',
-  LOCATIONS: '/api/locations',
-  PREFECTURES: '/api/prefectures',
-  REGISTER_TARGET_STORE: '/api/target-store/register'
+  SUGGEST_STORES: '/api/stores/search',
+  CHAINS: '/api/cvs_chains',
+  LOCATIONS: '/api/cvs_locations',
+  PREFECTURES: '/api/regions',
+  REGISTER_TARGET_STORE: '/api/stores'
 };
 
 const app = express();
@@ -22,6 +22,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 登録結果を保持するインメモリのモックストア
 const registeredTargets = [];
+
+// 新規店舗登録時にサーバー側で採番するID（店舗マスタの最大IDの続きから発行する）
+let nextStoreId = Math.max.apply(null, STORES.map((store) => store.id)) + 1;
 
 function isProductionMode() {
   return config.API_MODE === 'production';
@@ -108,11 +111,11 @@ app.post(ROUTES.PREFECTURES, async (req, res) => {
   res.json(PREFECTURES);
 });
 
-// 調査対象店舗の確定登録
-app.post(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
+// 調査対象店舗の確定登録（新規店舗の場合はサーバー側でIDを採番する）
+app.put(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
   if (isProductionMode()) {
     try {
-      const result = await proxyToProduction(config.PRODUCTION_PATHS.REGISTER_TARGET_STORE, 'POST', req.body);
+      const result = await proxyToProduction(config.PRODUCTION_PATHS.REGISTER_TARGET_STORE, 'PUT', req.body);
       return res.status(result.status).json(result.data);
     } catch (err) {
       console.error('[production proxy] register failed:', err.message);
@@ -127,7 +130,7 @@ app.post(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
   }
 
   const record = {
-    id: id || null,
+    id: id || nextStoreId++,
     storeName,
     chainName,
     locationType,
@@ -135,7 +138,7 @@ app.post(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
     registeredAt: new Date().toISOString()
   };
   registeredTargets.push(record);
-  console.log('[POST /api/target-store/register]', record);
+  console.log(`[PUT ${ROUTES.REGISTER_TARGET_STORE}]`, record);
 
   res.json({ success: true, id: record.id });
 });

@@ -1,12 +1,12 @@
 /*
- * 店舗名サジェスト（Ajax, /api/stores/suggest）を任意のテキスト入力欄に付与する共通部品。
+ * 店舗名サジェスト（Ajax, /api/stores/search）を任意のテキスト入力欄に付与する共通部品。
  * 店舗選択ポップアップ・お気に入り編集ポップアップの双方から利用する。
  */
 var StoreSuggest = (function ($) {
   'use strict';
 
   var API_ENDPOINTS = {
-    SUGGEST_STORES: '/api/stores/suggest'
+    SUGGEST_STORES: '/api/stores/search'
   };
 
   var DEBOUNCE_MS = 300;
