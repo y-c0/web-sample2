@@ -1,10 +1,15 @@
 /*
  * お気に入り店舗編集ポップアップ
- * window.FavoriteEdit.open() / close() を公開する。
+ * window.CvsStoreWidget.FavoriteEdit.open() / close() を公開する。
  * 保存に成功すると document に 'favorites-updated' カスタムイベントを発火する。
  */
-var FavoriteEdit = (function ($) {
+window.CvsStoreWidget = window.CvsStoreWidget || {};
+
+CvsStoreWidget.FavoriteEdit = (function ($) {
   'use strict';
+
+  var FavoritesUtil = CvsStoreWidget.util.FavoritesUtil;
+  var StoreSuggest = CvsStoreWidget.util.StoreSuggest;
 
   var $overlay, $rowsContainer, $formErrorMessage;
   var $inputs = [];

@@ -1,10 +1,15 @@
 /*
  * 調査対象店舗選択ポップアップ
- * window.StoreSelect.open() / close() を公開する。
+ * window.CvsStoreWidget.StoreSelect.open() / close() を公開する。
  * 「決定」で登録に成功すると document に 'store-selected' カスタムイベントを発火する。
  */
-var StoreSelect = (function ($) {
+window.CvsStoreWidget = window.CvsStoreWidget || {};
+
+CvsStoreWidget.StoreSelect = (function ($) {
   'use strict';
+
+  var FavoritesUtil = CvsStoreWidget.util.FavoritesUtil;
+  var StoreSuggest = CvsStoreWidget.util.StoreSuggest;
 
   var API_ENDPOINTS = {
     SUGGEST_STORES: '/api/stores/search',
@@ -16,7 +21,7 @@ var StoreSelect = (function ($) {
 
   var $overlay, $storeNameInput, $suggestList, $selectedStoreIdInput,
     $chainSelect, $locationSelect, $prefectureSelect,
-    $favoritesList, $favoritesEmptyMessage, $newStoreHint, $formErrorMessage;
+    $favoritesList, $favoritesEmptyMessage, $newStoreHint, $formErrorMessage, $btnConfirm;
 
   var optionsLoaded = false;
   var suggestController = null;
@@ -34,6 +39,7 @@ var StoreSelect = (function ($) {
     $favoritesEmptyMessage = $('#favoritesEmptyMessage');
     $newStoreHint = $('#newStoreHint');
     $formErrorMessage = $('#formErrorMessage');
+    $btnConfirm = $('#btnConfirm');
   }
 
   function bindEvents() {
@@ -59,7 +65,7 @@ var StoreSelect = (function ($) {
     $locationSelect.on('change', refreshNewStoreHint);
     $prefectureSelect.on('change', refreshNewStoreHint);
 
-    $('#btnConfirm').on('click', handleConfirm);
+    $btnConfirm.on('click', handleConfirm);
   }
 
   function open() {
@@ -85,6 +91,7 @@ var StoreSelect = (function ($) {
     appliedStore = null;
     $newStoreHint.hide();
     $formErrorMessage.hide().text('');
+    $btnConfirm.prop('disabled', false);
     suggestController.hide();
   }
 
@@ -208,6 +215,8 @@ var StoreSelect = (function ($) {
   }
 
   function handleConfirm() {
+    if ($btnConfirm.prop('disabled')) return;
+
     var values = getCurrentValues();
 
     if (!values.storeName || !values.chainName || !values.locationType || !values.prefecture) {
@@ -231,6 +240,10 @@ var StoreSelect = (function ($) {
     // 新規店舗はIDをサーバー側で採番するため、リクエスト時点ではidを送らない
     var newPayload = $.extend({ id: null }, values);
 
+    // 登録APIは非冪等（呼ぶたびに新規店舗が作られる）なので、レスポンスが返るまで
+    // ボタンを無効化して連打による二重登録を防ぐ。失敗時のみ再度有効化する。
+    $btnConfirm.prop('disabled', true);
+
     $.ajax({
       url: API_ENDPOINTS.REGISTER_TARGET_STORE,
       type: 'PUT',
@@ -242,6 +255,7 @@ var StoreSelect = (function ($) {
         $(document).trigger('store-selected', [newPayload]);
       },
       error: function () {
+        $btnConfirm.prop('disabled', false);
         $formErrorMessage.text('登録に失敗しました。時間をおいて再度お試しください。').show();
       }
     });

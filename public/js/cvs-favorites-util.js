@@ -1,10 +1,15 @@
 /*
  * お気に入り店舗名Cookie（favoriteStores）の読み書き共通処理
  * 値は店舗名のJSON配列。最大10件。
+ * window.CvsStoreWidget.util.FavoritesUtil として公開する。
  */
-var FavoritesUtil = (function () {
+window.CvsStoreWidget = window.CvsStoreWidget || {};
+window.CvsStoreWidget.util = window.CvsStoreWidget.util || {};
+
+CvsStoreWidget.util.FavoritesUtil = (function () {
   'use strict';
 
+  var CookieUtil = CvsStoreWidget.util.CookieUtil;
   var COOKIE_NAME = 'favoriteStores';
   var MAX_COUNT = 10;
   var EXPIRES_DAYS = 30;

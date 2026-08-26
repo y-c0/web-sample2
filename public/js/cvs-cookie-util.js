@@ -1,7 +1,12 @@
 /*
  * Cookie操作の共通ユーティリティ
+ * window.CvsStoreWidget.util.CookieUtil として公開する（グローバル汚染を避けるため
+ * 個々のモジュール名はグローバル変数にはせず、単一の名前空間の下にまとめる）。
  */
-var CookieUtil = (function () {
+window.CvsStoreWidget = window.CvsStoreWidget || {};
+window.CvsStoreWidget.util = window.CvsStoreWidget.util || {};
+
+CvsStoreWidget.util.CookieUtil = (function () {
   'use strict';
 
   function get(name) {

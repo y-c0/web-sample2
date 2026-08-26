@@ -6,6 +6,11 @@
 (function ($) {
   'use strict';
 
+  var StoreSelect = CvsStoreWidget.StoreSelect;
+  var FavoriteEdit = CvsStoreWidget.FavoriteEdit;
+  var FavoritesUtil = CvsStoreWidget.util.FavoritesUtil;
+  var CookieUtil = CvsStoreWidget.util.CookieUtil;
+
   var SAMPLE_FAVORITES = [
     'セブンイレブン渋谷駅前店',
     'ローソン池袋東口店',
