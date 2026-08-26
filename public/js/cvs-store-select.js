@@ -106,9 +106,10 @@ CvsStoreWidget.StoreSelect = (function ($) {
       fetchOptionList(API_ENDPOINTS.PREFECTURES)
     ).done(function (chains, locations, prefectures) {
       // $.when に複数のDeferredを渡すと各引数は [data, textStatus, jqXHR] になる
-      populateSelect($chainSelect, chains[0], 'cd_cvs_chain', 'nm_cvs_chain');
-      populateSelect($locationSelect, locations[0], 'cd_cvs_location', 'nm_cvs_location');
-      populateSelect($prefectureSelect, prefectures[0], 'cd_region', 'nm_region');
+      // レスポンスは { records: [...] } 形式で返る
+      populateSelect($chainSelect, chains[0].records, 'cd_cvs_chain', 'nm_cvs_chain');
+      populateSelect($locationSelect, locations[0].records, 'cd_cvs_location', 'nm_cvs_location');
+      populateSelect($prefectureSelect, prefectures[0].records, 'cd_region', 'nm_region');
       optionsLoaded = true;
       callback();
     });

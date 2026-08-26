@@ -82,7 +82,7 @@ app.post(ROUTES.CHAINS, async (req, res) => {
       return res.status(502).json({ message: '社内本番APIへの接続に失敗しました。' });
     }
   }
-  res.json(CHAINS);
+  res.json({ records: CHAINS });
 });
 
 app.post(ROUTES.LOCATIONS, async (req, res) => {
@@ -95,7 +95,7 @@ app.post(ROUTES.LOCATIONS, async (req, res) => {
       return res.status(502).json({ message: '社内本番APIへの接続に失敗しました。' });
     }
   }
-  res.json(LOCATION_TYPES);
+  res.json({ records: LOCATION_TYPES });
 });
 
 app.post(ROUTES.PREFECTURES, async (req, res) => {
@@ -108,7 +108,7 @@ app.post(ROUTES.PREFECTURES, async (req, res) => {
       return res.status(502).json({ message: '社内本番APIへの接続に失敗しました。' });
     }
   }
-  res.json(PREFECTURES);
+  res.json({ records: PREFECTURES });
 });
 
 // 調査対象店舗の確定登録（新規店舗の場合はサーバー側でIDを採番する）
