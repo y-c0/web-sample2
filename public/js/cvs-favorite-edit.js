@@ -46,7 +46,7 @@ CvsStoreWidget.FavoriteEdit = (function ($) {
       $input: $input,
       $list: $list,
       onSelect: function (store) {
-        $input.val(store.storeName);
+        $input.val(store.nm_cvs_store);
       }
     }));
   }

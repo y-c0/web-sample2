@@ -29,14 +29,14 @@
   }
 
   function renderSelectedResult(store) {
-    $('#resultStoreName').text(store.storeName);
-    $('#resultChainName').text(store.chainName);
-    $('#resultChainId').text(store.chainId);
-    $('#resultLocationType').text(store.locationType);
-    $('#resultLocationTypeId').text(store.locationTypeId);
-    $('#resultPrefecture').text(store.prefecture);
-    $('#resultPrefectureId').text(store.prefectureId);
-    $('#resultStoreId').text(store.id ? store.id : '（新規店舗）');
+    $('#resultStoreName').text(store.nm_cvs_store);
+    $('#resultChainName').text(store.nm_cd_cvs_chain);
+    $('#resultChainId').text(store.cd_cvs_chain);
+    $('#resultLocationType').text(store.nm_cvs_location);
+    $('#resultLocationTypeId').text(store.cd_cvs_location);
+    $('#resultPrefecture').text(store.nm_cd_region);
+    $('#resultPrefectureId').text(store.id_region);
+    $('#resultStoreId').text(store.id_cvs_store ? store.id_cvs_store : '（新規店舗）');
     $('#selectedResult').show();
   }
 

@@ -94,8 +94,8 @@ CvsStoreWidget.util.StoreSuggest = (function ($) {
 
       $.each(results, function (i, store) {
         var $item = $('<li class="suggest-item"></li>');
-        $item.append($('<span class="suggest-name"></span>').text(store.storeName));
-        $item.append($('<span class="suggest-meta"></span>').text(store.chainName + ' / ' + store.prefecture));
+        $item.append($('<span class="suggest-name"></span>').text(store.nm_cvs_store));
+        $item.append($('<span class="suggest-meta"></span>').text(store.nm_cd_cvs_chain + ' / ' + store.nm_cd_region));
         $item.on('click', function () {
           options.onSelect(store);
           hide();

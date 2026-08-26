@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const registeredTargets = [];
 
 // 新規店舗登録時にサーバー側で採番するID（店舗マスタの最大IDの続きから発行する）
-let nextStoreId = Math.max.apply(null, STORES.map((store) => store.id)) + 1;
+let nextStoreId = Math.max.apply(null, STORES.map((store) => store.id_cvs_store)) + 1;
 
 function isProductionMode() {
   return config.API_MODE === 'production';
@@ -67,7 +67,7 @@ app.get(ROUTES.SUGGEST_STORES, async (req, res) => {
   if (!q) {
     return res.json([]);
   }
-  const matches = STORES.filter((store) => store.storeName.includes(q)).slice(0, 20);
+  const matches = STORES.filter((store) => store.nm_cvs_store.includes(q)).slice(0, 20);
   res.json(matches);
 });
 
@@ -123,27 +123,32 @@ app.put(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
     }
   }
 
-  const { id, storeName, chainId, chainName, locationTypeId, locationType, prefectureId, prefecture } = req.body || {};
+  const {
+    id_cvs_store, nm_cvs_store,
+    cd_cvs_chain, nm_cd_cvs_chain,
+    cd_cvs_location, nm_cvs_location,
+    id_region, nm_cd_region
+  } = req.body || {};
 
-  if (!storeName || !chainId || !locationTypeId || !prefectureId) {
+  if (!nm_cvs_store || !cd_cvs_chain || !cd_cvs_location || !id_region) {
     return res.status(400).json({ success: false, message: '必須項目が不足しています。' });
   }
 
   const record = {
-    id: id || nextStoreId++,
-    storeName,
-    chainId,
-    chainName,
-    locationTypeId,
-    locationType,
-    prefectureId,
-    prefecture,
+    id_cvs_store: id_cvs_store || nextStoreId++,
+    nm_cvs_store,
+    cd_cvs_chain,
+    nm_cd_cvs_chain,
+    cd_cvs_location,
+    nm_cvs_location,
+    id_region,
+    nm_cd_region,
     registeredAt: new Date().toISOString()
   };
   registeredTargets.push(record);
   console.log(`[PUT ${ROUTES.REGISTER_TARGET_STORE}]`, record);
 
-  res.json({ success: true, id: record.id });
+  res.json({ success: true, id_cvs_store: record.id_cvs_store });
 });
 
 app.listen(PORT, () => {
