@@ -1,0 +1,53 @@
+サンプル一式（index.html, cvs-store-select.js, cvs-favorite-edit.js, cvs-favorites-util.js, cvs-store-suggest.js, cvs-cookie-util.js, server.js, config.js）を確認しました。実アプリへの組み込みを考えると、主な課題は以下の通りです。
+
+技術的な統合面
+
+jQuery 1.7.2への依存：実アプリが別バージョンのjQuery（またはjQuery非依存）を使っている場合、$の競合や挙動差異が出る。まず実アプリ側のjQueryバージョン・使用有無を確認する必要がある。
+グローバル変数モジュール（var StoreSelect = ...）：StoreSelect / FavoriteEdit / FavoritesUtil / CookieUtil / StoreSuggest という名前が実アプリの既存コードと衝突しないか要確認。
+モーダルHTMLがindex.htmlに直書き：ポップアップのDOM（#storeSelectModalOverlay等）を、実際に呼び出したい調査結果登録画面のHTMLへそのままコピーする必要があり、id衝突・CSSの競合（.modal, .btn等の汎用的なクラス名）に注意が必要。
+API・サーバー面
+
+API仕様の未検証部分：config.jsのPRODUCTION_PATHSやCHAINS/LOCATIONS/PREFECTURESを「空bodyのPOST」で取得する仕様、PUT /api/storesでサーバー側がIDを採番する仕様は、実際の社内APIの挙動と一致しているか実機確認が要る（現状は推測で作られている）。
+認証・Cookie中継の暫定性：config.local.jsに手書きしたログインCookieをNode側で固定的に付与してプロキシしている。これは検証用の割り切りであり、実アプリ組み込み時は実際のセッション/認証の仕組みに置き換える設計が別途必要。
+お気に入りCookie（favoriteStores, path=/）：ドメイン全体に効くCookieなので、実アプリの他機能が使うCookie名前空間と衝突しないか、またお気に入りをサーバー側で永続化する設計に変わる可能性があるか要確認。
+ロジック・UXの粗さ
+
+既存/新規店舗判定：isExistingStoreは店舗名+チェーン+立地+都道府県の完全一致で判定しており、同名店舗が複数存在する実データでは店舗ID基準にしないと誤判定のリスクがある。
+IME対応なし：日本語入力のサジェストでinputイベントのみ監視しており、変換中の候補にも都度APIを叩く可能性がある。
+オプション取得（チェーン/立地/都道府県）失敗時のエラーハンドリングが無い：$.when(...).done(...)のみでfailハンドラがなく、失敗時はセレクトボックスが空のまま気づかれない。
+二重送信防止なし：「OK」ボタン連打時の多重登録リクエストを防ぐ制御が無い。
+window.confirmのネイティブダイアログ：実アプリのモーダルデザインと統一感がなく、UXレビューで指摘されやすい。
+一番大きいリスクは「実際の社内APIの入出力仕様がこのサンプルの想定と本当に一致しているか」の検証で、ここがズレていると他の課題より優先度が高くなります。次にjQueryバージョン・グローバル変数の衝突確認が組み込み作業の入り口になるかと思います。
+
+作業前のgit statusはクリーンでした。
+ポート3000のモックサーバーはまだ起動していません（起動した場合は終了することを忘れずに）。
+jQuery ：問題なし。組み込み先とバージョンを合わせてある。二重参照にしなければよい認識。
+グローバル変数モジュール：ファイル内でだけ有効な値にすることは可能か検討してほしい
+モーダルHTML直書き：一旦問題なし。
+API仕様・認証・Cookie：組込時に対応予定。
+既存/新規店舗判定：一旦問題なし。
+IME対応なし：どのような対応案があるか検討してほしい
+二重送信防止なし：どのような対応案があるか検討してほしい
+window.confirmのネイティブダイアログ：組込時に対応予定。
+
+検討してほしい　とあるものは修正案を検討してほしい。
+
+
+
+
+実施内容
+1. グローバル変数のファイルスコープ化
+StoreSelect / FavoriteEdit / FavoritesUtil / CookieUtil / StoreSuggest の5つのグローバル変数を、window.CvsStoreWidgetという1つの名前空間オブジェクトに集約しました。
+
+公開API：CvsStoreWidget.StoreSelect、CvsStoreWidget.FavoriteEdit
+内部ヘルパー：CvsStoreWidget.util.{CookieUtil, FavoritesUtil, StoreSuggest}
+各モジュール内部では従来通りFavoritesUtil.xxxのように短い名前で参照できるよう、IIFE内でローカルエイリアス（var FavoritesUtil = CvsStoreWidget.util.FavoritesUtil;）を追加。ロジック本体の差分は最小限です。
+ビルド不要（既存のscriptタグ構成のまま）で、IE等の古いブラウザでも動作します。
+2. IME対応（cvs-store-suggest.js）
+compositionstart/compositionendを監視し、変換未確定中は検索を止め、確定時（compositionend）に1回検索を実行するようにしました。店舗選択・お気に入り編集の両ポップアップで共有されるStoreSuggest.attach()の1箇所を直すだけで両方に効きます。
+
+3. 二重送信防止（cvs-store-select.js）
+新規店舗登録の「OK」ボタン（$btnConfirm）を、登録APIリクエスト中はdisabledにし、失敗時のみ再度有効化、モーダル再オープン時（resetForm）にもリセットするようにしました。なお、お気に入り編集の「保存」はCookieへの同期書き込みのみで非冪等な副作用が無いため、同様のガードは追加していません（存在しない問題への対処は避けました）。
+
+確認：全ファイルの構文チェック（node --check）はOK、モックサーバー起動でAPI（/api/cvs_chains、/api/stores/search等）が正常応答することを確認済みです。このWindows環境にはchromium-cliが無くPlaywrightの導入も重かったため、実ブラウザでのクリック操作による目視確認は行わず、スクリプト読み込み順序に沿った依存関係のトレースで名前空間参照の整合性を確認しました。ブラウザでの実クリック確認が必要であれば教えてください。
+
