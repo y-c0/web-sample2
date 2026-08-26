@@ -126,8 +126,13 @@ CvsStoreWidget.StoreSelect = (function ($) {
 
   function populateSelect($select, items) {
     $.each(items, function (i, item) {
-      $select.append($('<option></option>').val(item).text(item));
+      $select.append($('<option></option>').val(item.id).text(item.name));
     });
+  }
+
+  // <select>の値（文字列 or 空文字）をID（数値）またはnullに変換する
+  function toId(value) {
+    return value ? Number(value) : null;
   }
 
   function renderFavorites() {
@@ -180,29 +185,33 @@ CvsStoreWidget.StoreSelect = (function ($) {
     appliedStore = store;
     $storeNameInput.val(store.storeName);
     $selectedStoreIdInput.val(store.id);
-    $chainSelect.val(store.chainName);
-    $locationSelect.val(store.locationType);
-    $prefectureSelect.val(store.prefecture);
+    $chainSelect.val(store.chainId);
+    $locationSelect.val(store.locationTypeId);
+    $prefectureSelect.val(store.prefectureId);
     refreshNewStoreHint();
   }
 
   function getCurrentValues() {
     return {
       storeName: $.trim($storeNameInput.val()),
-      chainName: $chainSelect.val(),
-      locationType: $locationSelect.val(),
-      prefecture: $prefectureSelect.val()
+      chainId: toId($chainSelect.val()),
+      chainName: $chainSelect.find('option:selected').text(),
+      locationTypeId: toId($locationSelect.val()),
+      locationType: $locationSelect.find('option:selected').text(),
+      prefectureId: toId($prefectureSelect.val()),
+      prefecture: $prefectureSelect.find('option:selected').text()
     };
   }
 
   // 候補/お気に入りから適用した店舗と、フォームの現在値が完全一致するかどうか。
   // 1項目でも変更されていれば「既存ではない店舗」として新規登録扱いにする。
+  // チェーン/立地条件/都道府県はIDで比較する（名称の揺れに影響されないため）。
   function isExistingStore(values) {
     return !!appliedStore &&
       values.storeName === appliedStore.storeName &&
-      values.chainName === appliedStore.chainName &&
-      values.locationType === appliedStore.locationType &&
-      values.prefecture === appliedStore.prefecture;
+      values.chainId === appliedStore.chainId &&
+      values.locationTypeId === appliedStore.locationTypeId &&
+      values.prefectureId === appliedStore.prefectureId;
   }
 
   function refreshNewStoreHint() {
@@ -219,7 +228,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
 
     var values = getCurrentValues();
 
-    if (!values.storeName || !values.chainName || !values.locationType || !values.prefecture) {
+    if (!values.storeName || !values.chainId || !values.locationTypeId || !values.prefectureId) {
       $formErrorMessage.text('店舗名・チェーン名・立地条件・都道府県はすべて必須です。').show();
       return;
     }

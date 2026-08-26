@@ -31,8 +31,11 @@
   function renderSelectedResult(store) {
     $('#resultStoreName').text(store.storeName);
     $('#resultChainName').text(store.chainName);
+    $('#resultChainId').text(store.chainId);
     $('#resultLocationType').text(store.locationType);
+    $('#resultLocationTypeId').text(store.locationTypeId);
     $('#resultPrefecture').text(store.prefecture);
+    $('#resultPrefectureId').text(store.prefectureId);
     $('#resultStoreId').text(store.id ? store.id : '（新規店舗）');
     $('#selectedResult').show();
   }

@@ -1,39 +1,51 @@
 'use strict';
 
 // チェーン名・立地条件・都道府県の選択肢マスタ
+// クライアントにはIDと名称のセットで返すため、それぞれにidを付与する
 const CHAINS = [
-  'セブンイレブン',
-  'ファミリーマート',
-  'ローソン',
-  'ミニストップ',
-  'デイリーヤマザキ',
-  'セイコーマート'
+  { id: 1, name: 'セブンイレブン' },
+  { id: 2, name: 'ファミリーマート' },
+  { id: 3, name: 'ローソン' },
+  { id: 4, name: 'ミニストップ' },
+  { id: 5, name: 'デイリーヤマザキ' },
+  { id: 6, name: 'セイコーマート' }
 ];
 
 const LOCATION_TYPES = [
-  '駅前',
-  '繁華街',
-  '郊外',
-  '住宅街',
-  'オフィス街',
-  'ロードサイド'
+  { id: 1, name: '駅前' },
+  { id: 2, name: '繁華街' },
+  { id: 3, name: '郊外' },
+  { id: 4, name: '住宅街' },
+  { id: 5, name: 'オフィス街' },
+  { id: 6, name: 'ロードサイド' }
 ];
 
 const PREFECTURES = [
-  '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-  '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-  '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県',
-  '岐阜県', '静岡県', '愛知県', '三重県',
-  '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県',
-  '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-  '徳島県', '香川県', '愛媛県', '高知県',
-  '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県',
-  '沖縄県'
+  { id: 1, name: '北海道' }, { id: 2, name: '青森県' }, { id: 3, name: '岩手県' }, { id: 4, name: '宮城県' },
+  { id: 5, name: '秋田県' }, { id: 6, name: '山形県' }, { id: 7, name: '福島県' },
+  { id: 8, name: '茨城県' }, { id: 9, name: '栃木県' }, { id: 10, name: '群馬県' }, { id: 11, name: '埼玉県' },
+  { id: 12, name: '千葉県' }, { id: 13, name: '東京都' }, { id: 14, name: '神奈川県' },
+  { id: 15, name: '新潟県' }, { id: 16, name: '富山県' }, { id: 17, name: '石川県' }, { id: 18, name: '福井県' },
+  { id: 19, name: '山梨県' }, { id: 20, name: '長野県' },
+  { id: 21, name: '岐阜県' }, { id: 22, name: '静岡県' }, { id: 23, name: '愛知県' }, { id: 24, name: '三重県' },
+  { id: 25, name: '滋賀県' }, { id: 26, name: '京都府' }, { id: 27, name: '大阪府' }, { id: 28, name: '兵庫県' },
+  { id: 29, name: '奈良県' }, { id: 30, name: '和歌山県' },
+  { id: 31, name: '鳥取県' }, { id: 32, name: '島根県' }, { id: 33, name: '岡山県' }, { id: 34, name: '広島県' },
+  { id: 35, name: '山口県' },
+  { id: 36, name: '徳島県' }, { id: 37, name: '香川県' }, { id: 38, name: '愛媛県' }, { id: 39, name: '高知県' },
+  { id: 40, name: '福岡県' }, { id: 41, name: '佐賀県' }, { id: 42, name: '長崎県' }, { id: 43, name: '熊本県' },
+  { id: 44, name: '大分県' }, { id: 45, name: '宮崎県' }, { id: 46, name: '鹿児島県' },
+  { id: 47, name: '沖縄県' }
 ];
+
+function findIdByName(list, name) {
+  const found = list.find((item) => item.name === name);
+  return found ? found.id : null;
+}
 
 // 店舗マスタのダミーデータ（nm_cvs_store 相当が storeName）
 // サジェスト検索を試しやすいよう、同一チェーン・類似名の店舗を複数含める
-const STORES = [
+const STORES_BASE = [
   { id: 1, storeName: 'セブンイレブン渋谷駅前店', chainName: 'セブンイレブン', locationType: '駅前', prefecture: '東京都' },
   { id: 2, storeName: 'セブンイレブン渋谷道玄坂店', chainName: 'セブンイレブン', locationType: '繁華街', prefecture: '東京都' },
   { id: 3, storeName: 'セブンイレブン新宿三丁目店', chainName: 'セブンイレブン', locationType: '繁華街', prefecture: '東京都' },
@@ -63,5 +75,12 @@ const STORES = [
   { id: 27, storeName: 'セイコーマート帯広本通店', chainName: 'セイコーマート', locationType: '繁華街', prefecture: '北海道' },
   { id: 28, storeName: 'セブンイレブン那覇国際通り店', chainName: 'セブンイレブン', locationType: '繁華街', prefecture: '沖縄県' }
 ];
+
+// 各店舗にチェーン/立地条件/都道府県のIDも持たせる（名称からマスタを逆引き）
+const STORES = STORES_BASE.map((store) => Object.assign({}, store, {
+  chainId: findIdByName(CHAINS, store.chainName),
+  locationTypeId: findIdByName(LOCATION_TYPES, store.locationType),
+  prefectureId: findIdByName(PREFECTURES, store.prefecture)
+}));
 
 module.exports = { CHAINS, LOCATION_TYPES, PREFECTURES, STORES };

@@ -123,17 +123,20 @@ app.put(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
     }
   }
 
-  const { id, storeName, chainName, locationType, prefecture } = req.body || {};
+  const { id, storeName, chainId, chainName, locationTypeId, locationType, prefectureId, prefecture } = req.body || {};
 
-  if (!storeName || !chainName || !locationType || !prefecture) {
+  if (!storeName || !chainId || !locationTypeId || !prefectureId) {
     return res.status(400).json({ success: false, message: '必須項目が不足しています。' });
   }
 
   const record = {
     id: id || nextStoreId++,
     storeName,
+    chainId,
     chainName,
+    locationTypeId,
     locationType,
+    prefectureId,
     prefecture,
     registeredAt: new Date().toISOString()
   };
