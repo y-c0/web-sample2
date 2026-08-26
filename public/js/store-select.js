@@ -6,6 +6,14 @@
 var StoreSelect = (function ($) {
   'use strict';
 
+  var API_ENDPOINTS = {
+    SUGGEST_STORES: '/api/stores/suggest',
+    CHAINS: '/api/chains',
+    LOCATIONS: '/api/locations',
+    PREFECTURES: '/api/prefectures',
+    REGISTER_TARGET_STORE: '/api/target-store/register'
+  };
+
   var $overlay, $storeNameInput, $suggestList, $selectedStoreIdInput,
     $chainSelect, $locationSelect, $prefectureSelect,
     $favoritesList, $favoritesEmptyMessage, $newStoreHint, $formErrorMessage;

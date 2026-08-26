@@ -5,6 +5,10 @@
 var StoreSuggest = (function ($) {
   'use strict';
 
+  var API_ENDPOINTS = {
+    SUGGEST_STORES: '/api/stores/suggest'
+  };
+
   var DEBOUNCE_MS = 300;
 
   /**

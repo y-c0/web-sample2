@@ -83,6 +83,8 @@ PRODUCTION_BASE_URLを実際の社内APIオリジンに書き換え、API_MODE: 
 node server.jsで起動すると、/api/...へのアクセスがサーバー側で該当Cookie付きの本番APIリクエストに変換される（server.jsのproxyToProduction）
 ダミーの社内APIサーバーを一時的に立てて、Cookieが正しく転送されること・Cookie不一致時は401がそのまま透過されることを確認済みです（検証用ファイルは削除済み）。現在はAPI_MODE=mock（既定）でhttp://localhost:3000が起動中です。
 
+＝＝＝＝＝＝＝
+
 
 
 
