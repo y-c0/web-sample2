@@ -86,6 +86,11 @@ node server.jsで起動すると、/api/...へのアクセスがサーバー側�
 ＝＝＝＝＝＝＝
 
 
+note:
+
+netstat -ano | findstr :3000
+taskkill /F /PID <上で表示されたPID>
+
 
 
 
