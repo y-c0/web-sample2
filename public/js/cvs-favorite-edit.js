@@ -14,6 +14,8 @@ CvsStoreWidget.FavoriteEdit = (function ($) {
   var $overlay, $rowsContainer, $formErrorMessage;
   var $inputs = [];
   var suggestControllers = [];
+  // 各行の「確定済み店舗名」。手入力で値を変えるとnullに戻る。行番号でインデックスする。
+  var resolvedNames = [];
 
   function cacheElements() {
     $overlay = $('#favoriteEditModalOverlay');
@@ -42,11 +44,22 @@ CvsStoreWidget.FavoriteEdit = (function ($) {
     $rowsContainer.append($row);
 
     $inputs.push($input);
+    resolvedNames[index] = null;
+
+    // 候補から選び終えた直後は resolvedNames[index] に確定名を覚えておき、
+    // フォーカスバックでのサジェスト再表示をスキップする（手入力で値を変えたらリセット）。
     suggestControllers.push(StoreSuggest.attach({
       $input: $input,
       $list: $list,
+      onChange: function () {
+        resolvedNames[index] = null;
+      },
       onSelect: function (store) {
         $input.val(store.nm_cvs_store);
+        resolvedNames[index] = store.nm_cvs_store;
+      },
+      isResolved: function () {
+        return resolvedNames[index] !== null && $.trim($input.val()) === resolvedNames[index];
       }
     }));
   }
@@ -55,7 +68,11 @@ CvsStoreWidget.FavoriteEdit = (function ($) {
     resetForm();
     var favorites = FavoritesUtil.getNames();
     $.each($inputs, function (i, $input) {
-      $input.val(favorites[i] || '');
+      var name = favorites[i] || '';
+      $input.val(name);
+      // 保存済みの値は既に確定済みの店舗名として扱い、開いた直後に
+      // フォーカスが当たってもサジェストが即座に出ないようにする。
+      resolvedNames[i] = name || null;
     });
     $overlay.show();
     $inputs[0].focus();

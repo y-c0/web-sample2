@@ -61,7 +61,13 @@ CvsStoreWidget.StoreSelect = (function ($) {
       $list: $suggestList,
       emptyMessage: '該当する店舗がありません（新規店舗として登録できます）',
       onChange: refreshNewStoreHint,
-      onSelect: applyStore
+      onSelect: applyStore,
+      // 店舗名欄の今の値が、確定済みの appliedStore とそのまま一致しているか。
+      // 一致していれば「選び終えた状態」とみなし、フォーカスバックでの
+      // サジェスト再表示をスキップする。
+      isResolved: function () {
+        return !!appliedStore && $.trim($storeNameInput.val()) === appliedStore.nm_cvs_store;
+      }
     });
 
     $chainSelect.on('change', refreshNewStoreHint);

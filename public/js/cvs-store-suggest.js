@@ -52,6 +52,26 @@ CvsStoreWidget.util.StoreSuggest = (function ($) {
       triggerSearch();
     });
 
+    // フォーカスを外して戻ってきたときも、既に入力済みの値でサジェストを
+    // 再表示する（クリックして他候補を見比べ直せるように）。値が変わったわけ
+    // ではないのでデバウンスはせず、その場で検索する。
+    // ただし、呼び出し側が isResolved() を渡していて「今の値は確定済みの選択と
+    // 一致している」と判定した場合は再表示しない（選び終えた直後に毎回出ると
+    // 煩わしいため）。
+    $input.on('focus', function () {
+      var value = $.trim($input.val());
+      if (!value) return;
+
+      if (typeof options.isResolved === 'function' && options.isResolved()) {
+        return;
+      }
+
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+      fetchSuggestions(value);
+    });
+
     function triggerSearch() {
       var value = $.trim($input.val());
       if (debounceTimer) {
