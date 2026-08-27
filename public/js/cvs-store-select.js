@@ -141,9 +141,10 @@ CvsStoreWidget.StoreSelect = (function ($) {
     });
   }
 
-  // <select>の値（文字列 or 空文字）をID（数値）またはnullに変換する
-  function toId(value) {
-    return value ? Number(value) : null;
+  // <select>の値（文字列 or 空文字）を、未選択なら null に正規化する。
+  // チェーン/立地条件/都道府県のコードは文字列型なので数値変換はしない。
+  function toCode(value) {
+    return value ? value : null;
   }
 
   function renderFavorites() {
@@ -209,11 +210,11 @@ CvsStoreWidget.StoreSelect = (function ($) {
   function getCurrentValues() {
     return {
       nm_cvs_store: $.trim($storeNameInput.val()),
-      cd_cvs_chain: toId($chainSelect.val()),
+      cd_cvs_chain: toCode($chainSelect.val()),
       nm_cvs_chain: $chainSelect.find('option:selected').text(),
-      cd_cvs_location: toId($locationSelect.val()),
+      cd_cvs_location: toCode($locationSelect.val()),
       nm_cvs_location: $locationSelect.find('option:selected').text(),
-      cd_region: toId($prefectureSelect.val()),
+      cd_region: toCode($prefectureSelect.val()),
       nm_region: $prefectureSelect.find('option:selected').text()
     };
   }

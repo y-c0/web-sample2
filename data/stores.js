@@ -2,40 +2,41 @@
 
 // チェーン名・立地条件・都道府県の選択肢マスタ
 // カラム名は実アプリ（社内本番API）の命名に合わせている
+// cd_cvs_chain / cd_cvs_location / cd_region は文字列型のコード値
 const CHAINS = [
-  { cd_cvs_chain: 1, nm_cvs_chain: 'セブンイレブン' },
-  { cd_cvs_chain: 2, nm_cvs_chain: 'ファミリーマート' },
-  { cd_cvs_chain: 3, nm_cvs_chain: 'ローソン' },
-  { cd_cvs_chain: 4, nm_cvs_chain: 'ミニストップ' },
-  { cd_cvs_chain: 5, nm_cvs_chain: 'デイリーヤマザキ' },
-  { cd_cvs_chain: 6, nm_cvs_chain: 'セイコーマート' }
+  { cd_cvs_chain: '1', nm_cvs_chain: 'セブンイレブン' },
+  { cd_cvs_chain: '2', nm_cvs_chain: 'ファミリーマート' },
+  { cd_cvs_chain: '3', nm_cvs_chain: 'ローソン' },
+  { cd_cvs_chain: '4', nm_cvs_chain: 'ミニストップ' },
+  { cd_cvs_chain: '5', nm_cvs_chain: 'デイリーヤマザキ' },
+  { cd_cvs_chain: '6', nm_cvs_chain: 'セイコーマート' }
 ];
 
 const LOCATION_TYPES = [
-  { cd_cvs_location: 1, nm_cvs_location: '駅前' },
-  { cd_cvs_location: 2, nm_cvs_location: '繁華街' },
-  { cd_cvs_location: 3, nm_cvs_location: '郊外' },
-  { cd_cvs_location: 4, nm_cvs_location: '住宅街' },
-  { cd_cvs_location: 5, nm_cvs_location: 'オフィス街' },
-  { cd_cvs_location: 6, nm_cvs_location: 'ロードサイド' }
+  { cd_cvs_location: '1', nm_cvs_location: '駅前' },
+  { cd_cvs_location: '2', nm_cvs_location: '繁華街' },
+  { cd_cvs_location: '3', nm_cvs_location: '郊外' },
+  { cd_cvs_location: '4', nm_cvs_location: '住宅街' },
+  { cd_cvs_location: '5', nm_cvs_location: 'オフィス街' },
+  { cd_cvs_location: '6', nm_cvs_location: 'ロードサイド' }
 ];
 
 const PREFECTURES = [
-  { cd_region: 1, nm_region: '北海道' }, { cd_region: 2, nm_region: '青森県' }, { cd_region: 3, nm_region: '岩手県' }, { cd_region: 4, nm_region: '宮城県' },
-  { cd_region: 5, nm_region: '秋田県' }, { cd_region: 6, nm_region: '山形県' }, { cd_region: 7, nm_region: '福島県' },
-  { cd_region: 8, nm_region: '茨城県' }, { cd_region: 9, nm_region: '栃木県' }, { cd_region: 10, nm_region: '群馬県' }, { cd_region: 11, nm_region: '埼玉県' },
-  { cd_region: 12, nm_region: '千葉県' }, { cd_region: 13, nm_region: '東京都' }, { cd_region: 14, nm_region: '神奈川県' },
-  { cd_region: 15, nm_region: '新潟県' }, { cd_region: 16, nm_region: '富山県' }, { cd_region: 17, nm_region: '石川県' }, { cd_region: 18, nm_region: '福井県' },
-  { cd_region: 19, nm_region: '山梨県' }, { cd_region: 20, nm_region: '長野県' },
-  { cd_region: 21, nm_region: '岐阜県' }, { cd_region: 22, nm_region: '静岡県' }, { cd_region: 23, nm_region: '愛知県' }, { cd_region: 24, nm_region: '三重県' },
-  { cd_region: 25, nm_region: '滋賀県' }, { cd_region: 26, nm_region: '京都府' }, { cd_region: 27, nm_region: '大阪府' }, { cd_region: 28, nm_region: '兵庫県' },
-  { cd_region: 29, nm_region: '奈良県' }, { cd_region: 30, nm_region: '和歌山県' },
-  { cd_region: 31, nm_region: '鳥取県' }, { cd_region: 32, nm_region: '島根県' }, { cd_region: 33, nm_region: '岡山県' }, { cd_region: 34, nm_region: '広島県' },
-  { cd_region: 35, nm_region: '山口県' },
-  { cd_region: 36, nm_region: '徳島県' }, { cd_region: 37, nm_region: '香川県' }, { cd_region: 38, nm_region: '愛媛県' }, { cd_region: 39, nm_region: '高知県' },
-  { cd_region: 40, nm_region: '福岡県' }, { cd_region: 41, nm_region: '佐賀県' }, { cd_region: 42, nm_region: '長崎県' }, { cd_region: 43, nm_region: '熊本県' },
-  { cd_region: 44, nm_region: '大分県' }, { cd_region: 45, nm_region: '宮崎県' }, { cd_region: 46, nm_region: '鹿児島県' },
-  { cd_region: 47, nm_region: '沖縄県' }
+  { cd_region: '1', nm_region: '北海道' }, { cd_region: '2', nm_region: '青森県' }, { cd_region: '3', nm_region: '岩手県' }, { cd_region: '4', nm_region: '宮城県' },
+  { cd_region: '5', nm_region: '秋田県' }, { cd_region: '6', nm_region: '山形県' }, { cd_region: '7', nm_region: '福島県' },
+  { cd_region: '8', nm_region: '茨城県' }, { cd_region: '9', nm_region: '栃木県' }, { cd_region: '10', nm_region: '群馬県' }, { cd_region: '11', nm_region: '埼玉県' },
+  { cd_region: '12', nm_region: '千葉県' }, { cd_region: '13', nm_region: '東京都' }, { cd_region: '14', nm_region: '神奈川県' },
+  { cd_region: '15', nm_region: '新潟県' }, { cd_region: '16', nm_region: '富山県' }, { cd_region: '17', nm_region: '石川県' }, { cd_region: '18', nm_region: '福井県' },
+  { cd_region: '19', nm_region: '山梨県' }, { cd_region: '20', nm_region: '長野県' },
+  { cd_region: '21', nm_region: '岐阜県' }, { cd_region: '22', nm_region: '静岡県' }, { cd_region: '23', nm_region: '愛知県' }, { cd_region: '24', nm_region: '三重県' },
+  { cd_region: '25', nm_region: '滋賀県' }, { cd_region: '26', nm_region: '京都府' }, { cd_region: '27', nm_region: '大阪府' }, { cd_region: '28', nm_region: '兵庫県' },
+  { cd_region: '29', nm_region: '奈良県' }, { cd_region: '30', nm_region: '和歌山県' },
+  { cd_region: '31', nm_region: '鳥取県' }, { cd_region: '32', nm_region: '島根県' }, { cd_region: '33', nm_region: '岡山県' }, { cd_region: '34', nm_region: '広島県' },
+  { cd_region: '35', nm_region: '山口県' },
+  { cd_region: '36', nm_region: '徳島県' }, { cd_region: '37', nm_region: '香川県' }, { cd_region: '38', nm_region: '愛媛県' }, { cd_region: '39', nm_region: '高知県' },
+  { cd_region: '40', nm_region: '福岡県' }, { cd_region: '41', nm_region: '佐賀県' }, { cd_region: '42', nm_region: '長崎県' }, { cd_region: '43', nm_region: '熊本県' },
+  { cd_region: '44', nm_region: '大分県' }, { cd_region: '45', nm_region: '宮崎県' }, { cd_region: '46', nm_region: '鹿児島県' },
+  { cd_region: '47', nm_region: '沖縄県' }
 ];
 
 function findByCode(list, codeKey, code) {
@@ -46,40 +47,40 @@ function findByCode(list, codeKey, code) {
 // 店舗マスタのダミーデータ。店舗名（nm_cvs_store）にチェーン名は含めない前提のため、
 // 「渋谷駅前店」のようにチェーン名を除いた名称のみを持つ（実データでは同名店舗が
 // 複数チェーンにまたがって存在しうる。id_cvs_store:29 はそれを再現するための
-// 意図的な重複例）。チェーン/立地条件/都道府県はコード値で持たせ、名称は下の
-// STORESで各マスタから引いて付与する。
+// 意図的な重複例）。チェーン/立地条件/都道府県はコード値（文字列型）で持たせ、
+// 名称は下のSTORESで各マスタから引いて付与する。
 const STORES_BASE = [
-  { id_cvs_store: 1, nm_cvs_store: '渋谷駅前店', cd_cvs_chain: 1, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 2, nm_cvs_store: '渋谷道玄坂店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 13 },
-  { id_cvs_store: 3, nm_cvs_store: '新宿三丁目店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 13 },
-  { id_cvs_store: 4, nm_cvs_store: '新宿東口店', cd_cvs_chain: 1, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 5, nm_cvs_store: '新宿西口店', cd_cvs_chain: 1, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 6, nm_cvs_store: '横浜みなとみらい店', cd_cvs_chain: 1, cd_cvs_location: 5, cd_region: 14 },
-  { id_cvs_store: 7, nm_cvs_store: '大阪梅田店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 27 },
-  { id_cvs_store: 8, nm_cvs_store: '横浜西口店', cd_cvs_chain: 2, cd_cvs_location: 1, cd_region: 14 },
-  { id_cvs_store: 9, nm_cvs_store: '横浜関内店', cd_cvs_chain: 2, cd_cvs_location: 2, cd_region: 14 },
-  { id_cvs_store: 10, nm_cvs_store: '川崎駅前店', cd_cvs_chain: 2, cd_cvs_location: 1, cd_region: 14 },
-  { id_cvs_store: 11, nm_cvs_store: '名古屋栄店', cd_cvs_chain: 2, cd_cvs_location: 2, cd_region: 23 },
-  { id_cvs_store: 12, nm_cvs_store: '名古屋駅前店', cd_cvs_chain: 2, cd_cvs_location: 1, cd_region: 23 },
-  { id_cvs_store: 13, nm_cvs_store: '福岡天神店', cd_cvs_chain: 2, cd_cvs_location: 2, cd_region: 40 },
-  { id_cvs_store: 14, nm_cvs_store: '池袋東口店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 15, nm_cvs_store: '池袋西口店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 16, nm_cvs_store: '札幌大通店', cd_cvs_chain: 3, cd_cvs_location: 2, cd_region: 1 },
-  { id_cvs_store: 17, nm_cvs_store: '札幌駅前店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 1 },
-  { id_cvs_store: 18, nm_cvs_store: '仙台国分町店', cd_cvs_chain: 3, cd_cvs_location: 2, cd_region: 4 },
-  { id_cvs_store: 19, nm_cvs_store: '郊外バイパス店', cd_cvs_chain: 3, cd_cvs_location: 6, cd_region: 11 },
-  { id_cvs_store: 20, nm_cvs_store: '千葉ニュータウン店', cd_cvs_chain: 4, cd_cvs_location: 4, cd_region: 12 },
-  { id_cvs_store: 21, nm_cvs_store: '浦和美園店', cd_cvs_chain: 4, cd_cvs_location: 4, cd_region: 11 },
-  { id_cvs_store: 22, nm_cvs_store: '広島紙屋町店', cd_cvs_chain: 4, cd_cvs_location: 2, cd_region: 34 },
-  { id_cvs_store: 23, nm_cvs_store: '京都四条店', cd_cvs_chain: 5, cd_cvs_location: 2, cd_region: 26 },
-  { id_cvs_store: 24, nm_cvs_store: '甲府駅前店', cd_cvs_chain: 5, cd_cvs_location: 1, cd_region: 19 },
-  { id_cvs_store: 25, nm_cvs_store: '郊外街道店', cd_cvs_chain: 5, cd_cvs_location: 6, cd_region: 10 },
-  { id_cvs_store: 26, nm_cvs_store: '札幌北口店', cd_cvs_chain: 6, cd_cvs_location: 1, cd_region: 1 },
-  { id_cvs_store: 27, nm_cvs_store: '帯広本通店', cd_cvs_chain: 6, cd_cvs_location: 2, cd_region: 1 },
-  { id_cvs_store: 28, nm_cvs_store: '那覇国際通り店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 47 },
+  { id_cvs_store: 1, nm_cvs_store: '渋谷駅前店', cd_cvs_chain: '1', cd_cvs_location: '1', cd_region: '13' },
+  { id_cvs_store: 2, nm_cvs_store: '渋谷道玄坂店', cd_cvs_chain: '1', cd_cvs_location: '2', cd_region: '13' },
+  { id_cvs_store: 3, nm_cvs_store: '新宿三丁目店', cd_cvs_chain: '1', cd_cvs_location: '2', cd_region: '13' },
+  { id_cvs_store: 4, nm_cvs_store: '新宿東口店', cd_cvs_chain: '1', cd_cvs_location: '1', cd_region: '13' },
+  { id_cvs_store: 5, nm_cvs_store: '新宿西口店', cd_cvs_chain: '1', cd_cvs_location: '1', cd_region: '13' },
+  { id_cvs_store: 6, nm_cvs_store: '横浜みなとみらい店', cd_cvs_chain: '1', cd_cvs_location: '5', cd_region: '14' },
+  { id_cvs_store: 7, nm_cvs_store: '大阪梅田店', cd_cvs_chain: '1', cd_cvs_location: '2', cd_region: '27' },
+  { id_cvs_store: 8, nm_cvs_store: '横浜西口店', cd_cvs_chain: '2', cd_cvs_location: '1', cd_region: '14' },
+  { id_cvs_store: 9, nm_cvs_store: '横浜関内店', cd_cvs_chain: '2', cd_cvs_location: '2', cd_region: '14' },
+  { id_cvs_store: 10, nm_cvs_store: '川崎駅前店', cd_cvs_chain: '2', cd_cvs_location: '1', cd_region: '14' },
+  { id_cvs_store: 11, nm_cvs_store: '名古屋栄店', cd_cvs_chain: '2', cd_cvs_location: '2', cd_region: '23' },
+  { id_cvs_store: 12, nm_cvs_store: '名古屋駅前店', cd_cvs_chain: '2', cd_cvs_location: '1', cd_region: '23' },
+  { id_cvs_store: 13, nm_cvs_store: '福岡天神店', cd_cvs_chain: '2', cd_cvs_location: '2', cd_region: '40' },
+  { id_cvs_store: 14, nm_cvs_store: '池袋東口店', cd_cvs_chain: '3', cd_cvs_location: '1', cd_region: '13' },
+  { id_cvs_store: 15, nm_cvs_store: '池袋西口店', cd_cvs_chain: '3', cd_cvs_location: '1', cd_region: '13' },
+  { id_cvs_store: 16, nm_cvs_store: '札幌大通店', cd_cvs_chain: '3', cd_cvs_location: '2', cd_region: '1' },
+  { id_cvs_store: 17, nm_cvs_store: '札幌駅前店', cd_cvs_chain: '3', cd_cvs_location: '1', cd_region: '1' },
+  { id_cvs_store: 18, nm_cvs_store: '仙台国分町店', cd_cvs_chain: '3', cd_cvs_location: '2', cd_region: '4' },
+  { id_cvs_store: 19, nm_cvs_store: '郊外バイパス店', cd_cvs_chain: '3', cd_cvs_location: '6', cd_region: '11' },
+  { id_cvs_store: 20, nm_cvs_store: '千葉ニュータウン店', cd_cvs_chain: '4', cd_cvs_location: '4', cd_region: '12' },
+  { id_cvs_store: 21, nm_cvs_store: '浦和美園店', cd_cvs_chain: '4', cd_cvs_location: '4', cd_region: '11' },
+  { id_cvs_store: 22, nm_cvs_store: '広島紙屋町店', cd_cvs_chain: '4', cd_cvs_location: '2', cd_region: '34' },
+  { id_cvs_store: 23, nm_cvs_store: '京都四条店', cd_cvs_chain: '5', cd_cvs_location: '2', cd_region: '26' },
+  { id_cvs_store: 24, nm_cvs_store: '甲府駅前店', cd_cvs_chain: '5', cd_cvs_location: '1', cd_region: '19' },
+  { id_cvs_store: 25, nm_cvs_store: '郊外街道店', cd_cvs_chain: '5', cd_cvs_location: '6', cd_region: '10' },
+  { id_cvs_store: 26, nm_cvs_store: '札幌北口店', cd_cvs_chain: '6', cd_cvs_location: '1', cd_region: '1' },
+  { id_cvs_store: 27, nm_cvs_store: '帯広本通店', cd_cvs_chain: '6', cd_cvs_location: '2', cd_region: '1' },
+  { id_cvs_store: 28, nm_cvs_store: '那覇国際通り店', cd_cvs_chain: '1', cd_cvs_location: '2', cd_region: '47' },
   // チェーン名を店舗名から外したことで、別チェーンの店舗と同名になる例
   // （渋谷駅前店 = id:1 セブンイレブン / id:29 ローソン）
-  { id_cvs_store: 29, nm_cvs_store: '渋谷駅前店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 13 }
+  { id_cvs_store: 29, nm_cvs_store: '渋谷駅前店', cd_cvs_chain: '3', cd_cvs_location: '1', cd_region: '13' }
 ];
 
 // 検索結果・サジェスト表示用に、各店舗へチェーン/立地条件/都道府県の名称も
