@@ -1,6 +1,8 @@
 /*
  * 調査対象店舗選択ポップアップ
- * window.CvsStoreWidget.StoreSelect.open() / close() を公開する。
+ * window.CvsStoreWidget.StoreSelect.open(file) / close() を公開する。
+ * file はホスト画面から受け取る関連ファイルのIDまたはファイル名（任意）で、
+ * 新規店舗登録時のリクエストにそのまま乗せる。
  * 「決定」で登録に成功すると document に 'store-selected' カスタムイベントを発火する。
  */
 window.CvsStoreWidget = window.CvsStoreWidget || {};
@@ -26,6 +28,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
   var optionsLoaded = false;
   var suggestController = null;
   var appliedStore = null;
+  var currentFile = null;
 
   function cacheElements() {
     $overlay = $('#storeSelectModalOverlay');
@@ -68,8 +71,9 @@ CvsStoreWidget.StoreSelect = (function ($) {
     $btnConfirm.on('click', handleConfirm);
   }
 
-  function open() {
+  function open(file) {
     resetForm();
+    currentFile = file || null;
     loadOptionsIfNeeded(function () {
       renderFavorites();
       $overlay.show();
@@ -160,26 +164,30 @@ CvsStoreWidget.StoreSelect = (function ($) {
     suggestController.hide();
 
     $.getJSON(API_ENDPOINTS.SUGGEST_STORES, { q: name }, function (results) {
-      var exact = findExactMatch(results, name);
-      if (exact) {
-        applyStore(exact);
-      } else {
-        appliedStore = null;
-        $selectedStoreIdInput.val('');
-        refreshNewStoreHint();
+      var matches = findExactMatches(results, name);
+
+      if (matches.length === 1) {
+        applyStore(matches[0]);
+        return;
       }
+
+      appliedStore = null;
+      $selectedStoreIdInput.val('');
+
+      if (matches.length > 1) {
+        // 店舗名にチェーン名を含めないため、別チェーンに同名店舗が存在すると
+        // ここで複数件ヒットしうる。既存のサジェスト候補リストを再利用して
+        // どの店舗か選び直してもらう（クリック時の処理は通常の候補選択と同じ applyStore）。
+        suggestController.showResults(matches);
+      }
+      refreshNewStoreHint();
     });
   }
 
-  function findExactMatch(results, name) {
-    var found = null;
-    $.each(results, function (i, store) {
-      if (store.nm_cvs_store === name) {
-        found = store;
-        return false;
-      }
+  function findExactMatches(results, name) {
+    return $.grep(results, function (store) {
+      return store.nm_cvs_store === name;
     });
-    return found;
   }
 
   function applyStore(store) {
@@ -248,7 +256,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
     }
 
     // 新規店舗はIDをサーバー側で採番するため、リクエスト時点ではidを送らない
-    var newPayload = $.extend({ id_cvs_store: null }, values);
+    var newPayload = $.extend({ id_cvs_store: null, file: currentFile }, values);
 
     // 登録APIは非冪等（呼ぶたびに新規店舗が作られる）なので、レスポンスが返るまで
     // ボタンを無効化して連打による二重登録を防ぐ。失敗時のみ再度有効化する。

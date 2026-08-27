@@ -43,38 +43,43 @@ function findByCode(list, codeKey, code) {
   return found || null;
 }
 
-// 店舗マスタのダミーデータ。店舗名（nm_cvs_store）以外はチェーン/立地条件/都道府県の
-// コード値で持たせ、名称は下のSTORESで各マスタから引いて付与する。
-// サジェスト検索を試しやすいよう、同一チェーン・類似名の店舗を複数含める
+// 店舗マスタのダミーデータ。店舗名（nm_cvs_store）にチェーン名は含めない前提のため、
+// 「渋谷駅前店」のようにチェーン名を除いた名称のみを持つ（実データでは同名店舗が
+// 複数チェーンにまたがって存在しうる。id_cvs_store:29 はそれを再現するための
+// 意図的な重複例）。チェーン/立地条件/都道府県はコード値で持たせ、名称は下の
+// STORESで各マスタから引いて付与する。
 const STORES_BASE = [
-  { id_cvs_store: 1, nm_cvs_store: 'セブンイレブン渋谷駅前店', cd_cvs_chain: 1, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 2, nm_cvs_store: 'セブンイレブン渋谷道玄坂店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 13 },
-  { id_cvs_store: 3, nm_cvs_store: 'セブンイレブン新宿三丁目店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 13 },
-  { id_cvs_store: 4, nm_cvs_store: 'セブンイレブン新宿東口店', cd_cvs_chain: 1, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 5, nm_cvs_store: 'セブンイレブン新宿西口店', cd_cvs_chain: 1, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 6, nm_cvs_store: 'セブンイレブン横浜みなとみらい店', cd_cvs_chain: 1, cd_cvs_location: 5, cd_region: 14 },
-  { id_cvs_store: 7, nm_cvs_store: 'セブンイレブン大阪梅田店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 27 },
-  { id_cvs_store: 8, nm_cvs_store: 'ファミリーマート横浜西口店', cd_cvs_chain: 2, cd_cvs_location: 1, cd_region: 14 },
-  { id_cvs_store: 9, nm_cvs_store: 'ファミリーマート横浜関内店', cd_cvs_chain: 2, cd_cvs_location: 2, cd_region: 14 },
-  { id_cvs_store: 10, nm_cvs_store: 'ファミリーマート川崎駅前店', cd_cvs_chain: 2, cd_cvs_location: 1, cd_region: 14 },
-  { id_cvs_store: 11, nm_cvs_store: 'ファミリーマート名古屋栄店', cd_cvs_chain: 2, cd_cvs_location: 2, cd_region: 23 },
-  { id_cvs_store: 12, nm_cvs_store: 'ファミリーマート名古屋駅前店', cd_cvs_chain: 2, cd_cvs_location: 1, cd_region: 23 },
-  { id_cvs_store: 13, nm_cvs_store: 'ファミリーマート福岡天神店', cd_cvs_chain: 2, cd_cvs_location: 2, cd_region: 40 },
-  { id_cvs_store: 14, nm_cvs_store: 'ローソン池袋東口店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 15, nm_cvs_store: 'ローソン池袋西口店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 13 },
-  { id_cvs_store: 16, nm_cvs_store: 'ローソン札幌大通店', cd_cvs_chain: 3, cd_cvs_location: 2, cd_region: 1 },
-  { id_cvs_store: 17, nm_cvs_store: 'ローソン札幌駅前店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 1 },
-  { id_cvs_store: 18, nm_cvs_store: 'ローソン仙台国分町店', cd_cvs_chain: 3, cd_cvs_location: 2, cd_region: 4 },
-  { id_cvs_store: 19, nm_cvs_store: 'ローソン郊外バイパス店', cd_cvs_chain: 3, cd_cvs_location: 6, cd_region: 11 },
-  { id_cvs_store: 20, nm_cvs_store: 'ミニストップ千葉ニュータウン店', cd_cvs_chain: 4, cd_cvs_location: 4, cd_region: 12 },
-  { id_cvs_store: 21, nm_cvs_store: 'ミニストップ浦和美園店', cd_cvs_chain: 4, cd_cvs_location: 4, cd_region: 11 },
-  { id_cvs_store: 22, nm_cvs_store: 'ミニストップ広島紙屋町店', cd_cvs_chain: 4, cd_cvs_location: 2, cd_region: 34 },
-  { id_cvs_store: 23, nm_cvs_store: 'デイリーヤマザキ京都四条店', cd_cvs_chain: 5, cd_cvs_location: 2, cd_region: 26 },
-  { id_cvs_store: 24, nm_cvs_store: 'デイリーヤマザキ甲府駅前店', cd_cvs_chain: 5, cd_cvs_location: 1, cd_region: 19 },
-  { id_cvs_store: 25, nm_cvs_store: 'デイリーヤマザキ郊外街道店', cd_cvs_chain: 5, cd_cvs_location: 6, cd_region: 10 },
-  { id_cvs_store: 26, nm_cvs_store: 'セイコーマート札幌北口店', cd_cvs_chain: 6, cd_cvs_location: 1, cd_region: 1 },
-  { id_cvs_store: 27, nm_cvs_store: 'セイコーマート帯広本通店', cd_cvs_chain: 6, cd_cvs_location: 2, cd_region: 1 },
-  { id_cvs_store: 28, nm_cvs_store: 'セブンイレブン那覇国際通り店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 47 }
+  { id_cvs_store: 1, nm_cvs_store: '渋谷駅前店', cd_cvs_chain: 1, cd_cvs_location: 1, cd_region: 13 },
+  { id_cvs_store: 2, nm_cvs_store: '渋谷道玄坂店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 13 },
+  { id_cvs_store: 3, nm_cvs_store: '新宿三丁目店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 13 },
+  { id_cvs_store: 4, nm_cvs_store: '新宿東口店', cd_cvs_chain: 1, cd_cvs_location: 1, cd_region: 13 },
+  { id_cvs_store: 5, nm_cvs_store: '新宿西口店', cd_cvs_chain: 1, cd_cvs_location: 1, cd_region: 13 },
+  { id_cvs_store: 6, nm_cvs_store: '横浜みなとみらい店', cd_cvs_chain: 1, cd_cvs_location: 5, cd_region: 14 },
+  { id_cvs_store: 7, nm_cvs_store: '大阪梅田店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 27 },
+  { id_cvs_store: 8, nm_cvs_store: '横浜西口店', cd_cvs_chain: 2, cd_cvs_location: 1, cd_region: 14 },
+  { id_cvs_store: 9, nm_cvs_store: '横浜関内店', cd_cvs_chain: 2, cd_cvs_location: 2, cd_region: 14 },
+  { id_cvs_store: 10, nm_cvs_store: '川崎駅前店', cd_cvs_chain: 2, cd_cvs_location: 1, cd_region: 14 },
+  { id_cvs_store: 11, nm_cvs_store: '名古屋栄店', cd_cvs_chain: 2, cd_cvs_location: 2, cd_region: 23 },
+  { id_cvs_store: 12, nm_cvs_store: '名古屋駅前店', cd_cvs_chain: 2, cd_cvs_location: 1, cd_region: 23 },
+  { id_cvs_store: 13, nm_cvs_store: '福岡天神店', cd_cvs_chain: 2, cd_cvs_location: 2, cd_region: 40 },
+  { id_cvs_store: 14, nm_cvs_store: '池袋東口店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 13 },
+  { id_cvs_store: 15, nm_cvs_store: '池袋西口店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 13 },
+  { id_cvs_store: 16, nm_cvs_store: '札幌大通店', cd_cvs_chain: 3, cd_cvs_location: 2, cd_region: 1 },
+  { id_cvs_store: 17, nm_cvs_store: '札幌駅前店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 1 },
+  { id_cvs_store: 18, nm_cvs_store: '仙台国分町店', cd_cvs_chain: 3, cd_cvs_location: 2, cd_region: 4 },
+  { id_cvs_store: 19, nm_cvs_store: '郊外バイパス店', cd_cvs_chain: 3, cd_cvs_location: 6, cd_region: 11 },
+  { id_cvs_store: 20, nm_cvs_store: '千葉ニュータウン店', cd_cvs_chain: 4, cd_cvs_location: 4, cd_region: 12 },
+  { id_cvs_store: 21, nm_cvs_store: '浦和美園店', cd_cvs_chain: 4, cd_cvs_location: 4, cd_region: 11 },
+  { id_cvs_store: 22, nm_cvs_store: '広島紙屋町店', cd_cvs_chain: 4, cd_cvs_location: 2, cd_region: 34 },
+  { id_cvs_store: 23, nm_cvs_store: '京都四条店', cd_cvs_chain: 5, cd_cvs_location: 2, cd_region: 26 },
+  { id_cvs_store: 24, nm_cvs_store: '甲府駅前店', cd_cvs_chain: 5, cd_cvs_location: 1, cd_region: 19 },
+  { id_cvs_store: 25, nm_cvs_store: '郊外街道店', cd_cvs_chain: 5, cd_cvs_location: 6, cd_region: 10 },
+  { id_cvs_store: 26, nm_cvs_store: '札幌北口店', cd_cvs_chain: 6, cd_cvs_location: 1, cd_region: 1 },
+  { id_cvs_store: 27, nm_cvs_store: '帯広本通店', cd_cvs_chain: 6, cd_cvs_location: 2, cd_region: 1 },
+  { id_cvs_store: 28, nm_cvs_store: '那覇国際通り店', cd_cvs_chain: 1, cd_cvs_location: 2, cd_region: 47 },
+  // チェーン名を店舗名から外したことで、別チェーンの店舗と同名になる例
+  // （渋谷駅前店 = id:1 セブンイレブン / id:29 ローソン）
+  { id_cvs_store: 29, nm_cvs_store: '渋谷駅前店', cd_cvs_chain: 3, cd_cvs_location: 1, cd_region: 13 }
 ];
 
 // 検索結果・サジェスト表示用に、各店舗へチェーン/立地条件/都道府県の名称も

@@ -11,12 +11,25 @@
   var FavoritesUtil = CvsStoreWidget.util.FavoritesUtil;
   var CookieUtil = CvsStoreWidget.util.CookieUtil;
 
+  // 店舗名にチェーン名を含めない前提のため、名称のみで登録する。
+  // 「渋谷駅前店」はセブンイレブン・ローソンの2チェーンに同名店舗が存在する
+  // ため、お気に入り選択時に複数候補のサジェストが出ることを確認できる。
   var SAMPLE_FAVORITES = [
-    'セブンイレブン渋谷駅前店',
-    'ローソン池袋東口店',
-    'ファミリーマート横浜西口店',
+    '渋谷駅前店',
+    '池袋東口店',
+    '横浜西口店',
     '未登録の個人経営店'
   ];
+
+  // 実アプリでは調査結果登録画面等からこのURLに ?file=... が付与されて遷移してくる想定。
+  // アップロード自体は別画面/別処理が担い、ここでは関連ファイルのIDまたはファイル名を
+  // 受け取って店舗登録リクエストに乗せるだけ。
+  function getQueryParam(name) {
+    var match = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  var fileParam = getQueryParam('file');
 
   function updateFavoriteStatus() {
     var favorites = FavoritesUtil.getNames();
@@ -37,11 +50,13 @@
     $('#resultPrefecture').text(store.nm_region);
     $('#resultPrefectureId').text(store.cd_region);
     $('#resultStoreId').text(store.id_cvs_store ? store.id_cvs_store : '（新規店舗）');
+    $('#resultFile').text(store.file ? store.file : '（なし）');
     $('#selectedResult').show();
   }
 
   $(function () {
     updateFavoriteStatus();
+    $('#fileParamStatus').text(fileParam ? fileParam : '未指定');
 
     $('#btnSeedFavorites').on('click', function () {
       FavoritesUtil.saveNames(SAMPLE_FAVORITES);
@@ -55,7 +70,7 @@
     });
 
     $('#btnOpenStoreSelect').on('click', function () {
-      StoreSelect.open();
+      StoreSelect.open(fileParam);
     });
 
     $('#btnOpenFavoriteEdit').on('click', function () {

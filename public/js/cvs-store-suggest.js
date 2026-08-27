@@ -109,7 +109,10 @@ CvsStoreWidget.util.StoreSuggest = (function ($) {
       $list.hide().empty();
     }
 
-    return { hide: hide };
+    // 入力欄への直接入力以外（お気に入り選択など）からも候補一覧を表示できるようにする。
+    // 店舗名が同一チェーン内外で重複しうる場合に、呼び出し側が複数候補を渡して
+    // 選び直してもらうために使う。
+    return { hide: hide, showResults: render };
   }
 
   return { attach: attach };
