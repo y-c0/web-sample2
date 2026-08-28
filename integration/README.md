@@ -102,7 +102,7 @@ CvsStoreWidget.StoreSelect.open(fileParam);
 // オブジェクトで dialog の見た目をその場で指定できる（既存ダイアログの引数と同じ感覚）
 CvsStoreWidget.StoreSelect.open({
   file: fileParam,
-  title: '調査対象の店舗を選択',
+  title: '店舗選択',
   width: 560,
   height: 'auto',
   dialogOptions: { position: { my: 'center top', at: 'center top+80' } } // 任意の jQuery UI dialog オプション
