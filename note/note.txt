@@ -218,6 +218,22 @@ index.html に storeSelectDialog/favoriteEditDialog と jQuery UI 参照を確�
 
 ＝＝＝＝＝＝＝
 
+組み込んだら、お気に入り側 dialog() の autoOpen/open/close が効かず、コメントアウトで動いた。この3つは何？
+→ 初期化オプション。open/close はコールバック1個のみ（後勝ちで既存処理が消える）、
+  autoOpen は初期化済みダイアログには無効。README のサンプルが「新規ダイアログ作成」前提だったのが原因。
+
+実施内容（README/デモを「既存ダイアログへ混ぜる」書き方へ修正）
+- integration/README.md 3-2: dialog({...}) に open/close/autoOpen を足す例をやめ、
+  既存定義は触らず mount() 1回＋ $('#dlg').on('dialogopen'/'dialogclose', ...) でフックする例に変更。
+  save() は既存の保存ボタン/submit ハンドラ内に1行追加。dialogbeforeclose で return false すれば閉じる中断も可、を補足。
+- public/js/main.js: デモも同じ形へ。#demoHostDialog の dialog() 定義から open/close を外し、
+  FavoriteEdit.load/reset は dialogopen/dialogclose イベントで配線。save は保存ボタン内のまま。
+- cvs-favorite-edit.js ヘッダコメント: 呼びどころを dialogopen/dialogclose イベントに更新。
+
+確認：main.js / cvs-favorite-edit.js の node --check OK。モックで dialogopen/dialogclose 配線を確認。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

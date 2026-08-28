@@ -113,35 +113,38 @@ CvsStoreWidget.StoreSelect.open({
 
 | メソッド | 役割 | 呼びどころ |
 |---|---|---|
-| `mount(target?, options?)` | `target`（省略時 `[data-cvs-favorite-edit-rows]`）に入力行を生成しサジェストを付与。`options.count` で行数（既定10） | DOM ready 後に1回 |
-| `load()` | Cookie（`favoriteStores`）から各入力欄を復元 | ダイアログの `open` |
-| `save()` | 入力値を Cookie 保存 → `favorites-updated` 発火 → 保存後配列を返す | 保存ボタン / `beforeClose` |
+| `mount(target?, options?)` | `target`（省略時 `[data-cvs-favorite-edit-rows]`）に入力行を生成しサジェストを付与。`options.count` で行数（既定10） | ページ初期化時に1回 |
+| `load()` | Cookie（`favoriteStores`）から各入力欄を復元 | ダイアログの `dialogopen` |
+| `save()` | 入力値を Cookie 保存 → `favorites-updated` 発火 → 保存後配列を返す | 既存の「保存」処理の中 |
 | `getValues()` | 現在値（trim 済み配列。保存はしない） | 任意 |
-| `reset()` | 全行のサジェスト候補を閉じる | ダイアログの `close` |
+| `reset()` | 全行のサジェスト候補を閉じる | ダイアログの `dialogclose` |
 
-既存ダイアログ（jQuery UI dialog）への配線例:
+**既存ダイアログの `dialog({...})` 定義には手を入れない。** `open` / `close` は
+コールバックが1個しか持てず（後勝ちで既存の処理が消える）、`autoOpen` は初期化済み
+ダイアログには効かない。代わりに**重ねられるイベント** `dialogopen` / `dialogclose` で足す:
 
 ```js
-CvsStoreWidget.FavoriteEdit.mount('[data-cvs-favorite-edit-rows]');   // 1回だけ
+// ページ初期化時に1回（ダイアログの開閉タイミングとは無関係）
+CvsStoreWidget.FavoriteEdit.mount('[data-cvs-favorite-edit-rows]');
 
-$('#userPrefsDialog').dialog({
-  autoOpen: false, modal: true, width: 480, appendTo: 'body',
-  open:  function () { CvsStoreWidget.FavoriteEdit.load(); },          // 既存の open 処理に追記
-  close: function () { CvsStoreWidget.FavoriteEdit.reset(); },
-  buttons: [
-    { text: '保存', click: function () {
-        /* 既存項目の保存 ... */
-        CvsStoreWidget.FavoriteEdit.save();
-        $(this).dialog('close');
-    } },
-    { text: 'キャンセル', click: function () { $(this).dialog('close'); } }
-  ]
-});
+// 既存ダイアログの定義は触らず、イベントで追加フックする
+$('#userPrefsDialog')
+  .on('dialogopen',  function () { CvsStoreWidget.FavoriteEdit.load(); })
+  .on('dialogclose', function () { CvsStoreWidget.FavoriteEdit.reset(); });
+```
+
+保存は、**既存の「保存」ボタン／submit ハンドラの中**に1行足すだけ:
+
+```js
+// 既存項目の保存処理 ...
+CvsStoreWidget.FavoriteEdit.save();   // Cookie 保存 + favorites-updated 発火
 ```
 
 - マウント先（か祖先）に `class="cvs-store-widget"` が必要（フラグメントに同梱済み）。
+- 開いた時にだけ復元したいので `load()` は `dialogopen` で。`dialogbeforeclose` で
+  `return false` すると閉じるのを止められる（入力チェックを挟みたい場合）。
 - サジェスト候補は `position:absolute`。ダイアログ中身が `overflow:auto` で行数が少ないと
-  長い候補リストが見切れることがある（従来の単独ダイアログでも同様）。
+  長い候補リストが見切れることがある。
 - `mount()` 前に `load()` / `save()` を呼ぶとコンソール警告のみ（何もしない）。
 
 ### 4. 結果を受け取る（`document` のカスタムイベント）

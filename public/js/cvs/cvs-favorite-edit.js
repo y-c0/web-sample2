@@ -9,12 +9,13 @@
  *                             各行に店舗名サジェストを付与する。DOM ready 後に1回呼ぶ。
  *                             options.count で行数を指定（既定 FavoritesUtil.MAX_COUNT）。
  *   load()               … Cookie（favoriteStores）から各入力欄を復元する。
- *                           ホストダイアログの open 時に呼ぶ。
+ *                           ホストダイアログの dialogopen イベントで呼ぶ
+ *                           （既存の open コールバックを上書きしないこと）。
  *   save()               … 入力値を Cookie に保存し、document に 'favorites-updated' を発火、
- *                           保存後の配列を返す。ホストダイアログの OK / beforeClose で呼ぶ。
+ *                           保存後の配列を返す。既存の「保存」処理の中で呼ぶ。
  *   getValues()          … 現在の入力値（trim 済み・件数ぶんの配列。空文字や重複を含みうる）。
  *                           保存はしない。save() 側で重複排除・件数上限を行う。
- *   reset()              … 全行のサジェスト候補を閉じる。ホストダイアログの close で呼ぶ。
+ *   reset()              … 全行のサジェスト候補を閉じる。ホストダイアログの dialogclose イベントで呼ぶ。
  */
 window.CvsStoreWidget = window.CvsStoreWidget || {};
 

@@ -73,23 +73,29 @@
       StoreSelect.open(fileParam);
     });
 
-    // お気に入り店舗の入力欄を「既存ダイアログ」に見立てた jQuery UI ダイアログへマウントし、
-    // そのライフサイクル（open / 保存ボタン / close）にウィジェットのメソッドをフックする。
-    // 社内アプリでも同じ配線パターンで既存ダイアログへ組み込む（integration/README.md 参照）。
-    FavoriteEdit.mount('[data-cvs-favorite-edit-rows]');
+    // --- 「社内アプリの既存ダイアログ」に見立てた定義（ウィジェットはここに手を入れない） ---
     $('#demoHostDialog').dialog({
       autoOpen: false,
       modal: true,
       width: 480,
       appendTo: 'body',
       closeText: '閉じる',
-      open: function () { FavoriteEdit.load(); },
-      close: function () { FavoriteEdit.reset(); },
       buttons: [
-        { text: '保存', click: function () { FavoriteEdit.save(); $(this).dialog('close'); } },
+        { text: '保存', click: function () {
+            // 既存項目の保存処理 ...（デモでは無し）
+            FavoriteEdit.save();          // お気に入り分の保存を1行足すだけ
+            $(this).dialog('close');
+        } },
         { text: 'キャンセル', click: function () { $(this).dialog('close'); } }
       ]
     });
+
+    // --- ウィジェット側の配線: mount は1回、開閉フックは重ねられるイベントで足す ---
+    // （既存ダイアログの open/close コールバックを上書きしないため。README 3-2 参照）
+    FavoriteEdit.mount('[data-cvs-favorite-edit-rows]');
+    $('#demoHostDialog')
+      .on('dialogopen', function () { FavoriteEdit.load(); })
+      .on('dialogclose', function () { FavoriteEdit.reset(); });
 
     $('#btnOpenFavoriteEdit').on('click', function () {
       $('#demoHostDialog').dialog('open');
