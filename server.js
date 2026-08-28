@@ -49,19 +49,29 @@ async function proxyToProduction(productionPath, method, body) {
   return { status: response.status, data: data };
 }
 
-// 店舗名サジェスト検索: nm_cvs_store LIKE '%q%' 相当
+// 店舗検索: 通常は nm_cvs_store LIKE '%q%' 相当。
+// id を指定した場合は id_cvs_store 完全一致で1件返す（q は無視）。呼び出し元が
+// 前回選択した店舗を再表示するために使う。レスポンス形式は q 版と同じ store 配列。
 app.get(ROUTES.SUGGEST_STORES, async (req, res) => {
   const q = (req.query.q || '').trim();
+  const id = (req.query.id || '').trim();
 
   if (isProductionMode()) {
     try {
-      const queryString = q ? '?q=' + encodeURIComponent(q) : '';
+      const queryString = id ? '?id=' + encodeURIComponent(id)
+        : (q ? '?q=' + encodeURIComponent(q) : '');
       const result = await proxyToProduction(config.PRODUCTION_PATHS.SUGGEST_STORES + queryString, 'GET');
       return res.status(result.status).json(result.data);
     } catch (err) {
       console.error('[production proxy] suggest failed:', err.message);
       return res.status(502).json({ message: '社内本番APIへの接続に失敗しました。' });
     }
+  }
+
+  if (id) {
+    // 店舗マスタ ＋ このセッションで新規登録された店舗から1件（配列・0 or 1件）
+    const pool = STORES.concat(registeredTargets);
+    return res.json(pool.filter((store) => String(store.id_cvs_store) === String(id)).slice(0, 1));
   }
 
   if (!q) {

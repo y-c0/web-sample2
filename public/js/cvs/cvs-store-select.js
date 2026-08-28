@@ -4,8 +4,10 @@
  * window.CvsStoreWidget.StoreSelect.open(arg) / close() を公開する。
  *   open() の引数:
  *     - 文字列/数値      … 関連ファイルのID or ファイル名（新規店舗登録リクエストに乗せる）
- *     - オブジェクト      … { file, title, width, height, dialogOptions }
- *                           title / width / height / 任意の dialog オプションをその場で上書きできる
+ *     - オブジェクト      … { file, storeId, title, width, height, dialogOptions }
+ *                           title / width / height / 任意の dialog オプションをその場で上書きできる。
+ *                           storeId（別名 id_cvs_store）を渡すと、その店舗を選択済みの状態で開く
+ *                           （前回 store-selected で受け取った payload をそのまま渡してもよい）。
  * 「OK」で登録に成功すると document に 'store-selected' カスタムイベントを発火する。
  *
  * 表示は jQuery UI の $().dialog() を使う（タイトルバー・OK/キャンセル・暗幕は jQuery UI が生成）。
@@ -106,11 +108,36 @@ CvsStoreWidget.StoreSelect = (function ($) {
     var opts = toOpenOptions(arg);
     resetForm();
     currentFile = opts.file || null;
+    var storeId = (opts.storeId != null) ? opts.storeId : opts.id_cvs_store;
     applyDialogOptions(opts);
     loadOptionsIfNeeded(function () {
       renderFavorites();
-      $dialog.dialog('open');
+      if (storeId != null && storeId !== '') {
+        preselectById(storeId, function () { $dialog.dialog('open'); });
+      } else {
+        $dialog.dialog('open');
+      }
     });
+  }
+
+  // 店舗IDで1件取得し、見つかれば applyStore（＝サジェスト候補から選んだのと同じ確定状態）にする。
+  // 見つからない/失敗しても done() は呼び、ダイアログは開く（その場合は空のまま・console.warn）。
+  function preselectById(storeId, done) {
+    $.getJSON(apiUrl(PATHS.SUGGEST_STORES), { id: storeId })
+      .done(function (results) {
+        var store = (results && results.length) ? results[0] : null;
+        if (store) {
+          applyStore(store);
+        } else if (window.console && console.warn) {
+          console.warn('[CvsStoreWidget] StoreSelect: 店舗ID ' + storeId + ' が見つかりませんでした。');
+        }
+      })
+      .fail(function () {
+        if (window.console && console.warn) {
+          console.warn('[CvsStoreWidget] StoreSelect: 店舗ID取得に失敗しました。');
+        }
+      })
+      .always(function () { done(); });
   }
 
   function close() {

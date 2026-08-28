@@ -249,6 +249,32 @@ index.html に storeSelectDialog/favoriteEditDialog と jQuery UI 参照を確�
 
 ＝＝＝＝＝＝＝
 
+店舗選択ポップアップで一度確定した後、再オープン時に前回の店舗を選択済みにしたい。
+呼び出し元が店舗IDを保持して渡し戻せる。検索APIに店舗ID条件を追加する方針。
+決定: ID未ヒット時は「空で開く＋console.warn」、クエリパラメータ名は id。
+
+実施内容
+- cvs-store-select.js: open(arg) が opts.storeId（別名 opts.id_cvs_store）を受付。
+  loadOptionsIfNeeded 後、storeId があれば preselectById() で
+  $.getJSON(/api/stores/search, {id}) → 1件なら applyStore（＝候補選択と同じ確定状態）→ dialog open。
+  未ヒット/失敗でも .always で必ず open（空のまま・console.warn）。
+  既存の resetForm → loadOptionsIfNeeded の流れは維持。storeId 無しは従来どおり空。
+- server.js: GET /api/stores/search に id 条件を追加。id 指定時は q を無視し、
+  STORES ＋ registeredTargets（当該セッションの新規登録店）から id_cvs_store 完全一致で1件返す（配列）。
+  production モードでも ?id= を素通しでプロキシ。
+- main.js: 直近の store-selected の id_cvs_store を lastStoreId に保持し、
+  次回 open({ file, storeId: lastStoreId }) で渡す。
+- index.html: デモ可視化用に「再オープン時に渡す店舗ID」の表示行（#rememberedStoreId）を追加。
+- integration/README.md 3-1: open の storeId 説明＋バックエンド要件（/api/stores/search が ?id= を受け、
+  該当1件の配列を返す。id 指定時は q 無視）を追記。
+- cvs-store-suggest.js は変更なし（?q= 専用のまま。ID取得は store-select が直接叩く）。
+
+確認: node --check（cvs/*.js, server.js, main.js）OK。
+モックで /api/stores/search?id=1 →1件、?id=99999 →[]、?id=1&q=渋谷 →id優先。
+ブラウザ実クリックはこの環境（chromium未導入）では未実施。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

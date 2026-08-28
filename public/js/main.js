@@ -31,6 +31,10 @@
 
   var fileParam = getQueryParam('file');
 
+  // 直近に確定した調査対象店舗のID。実アプリでは呼び出し元（調査結果登録画面など）が
+  // DB等に保持し、ポップアップを開き直すときに渡し戻す想定。ここでは変数で模擬する。
+  var lastStoreId = null;
+
   function updateFavoriteStatus() {
     var favorites = FavoritesUtil.getNames();
     var $status = $('#favoriteCookieStatus');
@@ -52,6 +56,7 @@
     $('#resultStoreId').text(store.id_cvs_store ? store.id_cvs_store : '（新規店舗）');
     $('#resultFile').text(store.file ? store.file : '（なし）');
     $('#selectedResult').show();
+    $('#rememberedStoreId').text(lastStoreId != null ? lastStoreId : '（なし）');
   }
 
   $(function () {
@@ -70,7 +75,8 @@
     });
 
     $('#btnOpenStoreSelect').on('click', function () {
-      StoreSelect.open(fileParam);
+      // storeId を渡すと、その店舗を選択済みの状態で開く（初回は null なので無視される）。
+      StoreSelect.open({ file: fileParam, storeId: lastStoreId });
     });
 
     // --- 「社内アプリの既存ダイアログ」に見立てた定義（ウィジェットはここに手を入れない） ---
@@ -102,6 +108,7 @@
     });
 
     $(document).on('store-selected', function (e, store) {
+      lastStoreId = store.id_cvs_store || null;   // 新規登録後も採番済みIDが入る
       renderSelectedResult(store);
     });
 

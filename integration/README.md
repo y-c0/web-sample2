@@ -99,17 +99,31 @@ CSS は名前空間化済み（クラスは `cvs-` 接頭辞、全セレクタ `
 // 文字列/数値を渡すと関連ファイルID/名として扱う（新規店舗登録リクエストに乗る）
 CvsStoreWidget.StoreSelect.open(fileParam);
 
-// オブジェクトで dialog の見た目をその場で指定できる（既存ダイアログの引数と同じ感覚）
+// オブジェクトで詳細指定
 CvsStoreWidget.StoreSelect.open({
   file: fileParam,
+  storeId: prevStoreId,   // ★ 前回選んだ店舗IDを渡すと、その店舗を選択済みの状態で開く
   title: '店舗選択',
   width: 560,
   height: 'auto',
   dialogOptions: { position: { my: 'center top', at: 'center top+80' } } // 任意の jQuery UI dialog オプション
 });
+
+// 前回の store-selected payload をそのまま渡してもよい（id_cvs_store を storeId として解釈する）
+CvsStoreWidget.StoreSelect.open(prevSelection);
 ```
 
-サイズ・タイトルは CSS/HTML ではなく **`open()` の引数**で渡す。
+- サイズ・タイトルは CSS/HTML ではなく **`open()` の引数**で渡す。
+- `storeId`（別名 `id_cvs_store`）… 呼び出し元が確定時の `store-selected` から受け取った
+  `id_cvs_store` を保持しておき、ポップアップを開き直すときに渡す。ウィジェットが
+  `GET /api/stores/search?id=<storeId>` で1件取得し、店舗名・チェーン名・立地条件・都道府県を
+  選択済みにする。未変更のまま OK すると登録APIは呼ばれず同じIDが `store-selected` で返る。
+  IDが見つからない場合は空のまま開く（コンソール警告のみ）。渡さなければ従来どおり空で開く。
+
+**バックエンド要件**: `/api/stores/search` は `?q=` に加えて **`?id=<id_cvs_store>`** を受け付け、
+該当店舗1件を含む配列
+`[ { id_cvs_store, nm_cvs_store, cd_cvs_chain, nm_cvs_chain, cd_cvs_location, nm_cvs_location, cd_region, nm_region } ]`
+を返すこと（該当なしは `[]`）。`id` 指定時は `q` を無視する。
 
 ### 3-2. お気に入り入力欄を既存ダイアログに配線する
 
