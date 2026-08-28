@@ -147,8 +147,11 @@ CvsStoreWidget.FavoriteEdit.save();   // Cookie 保存 + favorites-updated 発�
 - マウント先（か祖先）に `class="cvs-store-widget"` が必要（フラグメントに同梱済み）。
 - 開いた時にだけ復元したいので `load()` は `dialogopen` で。`dialogbeforeclose` で
   `return false` すると閉じるのを止められる（入力チェックを挟みたい場合）。
-- サジェスト候補は `position:absolute`。ダイアログ中身が `overflow:auto` で行数が少ないと
-  長い候補リストが見切れることがある。
+- サジェスト候補リストは `position:fixed`（`layout.css`）で、`cvs-store-suggest.js` が
+  入力欄の実座標から位置・幅を設定する。ダイアログ中身の `overflow:auto` に
+  クリップされず、ネイティブ `<select>` の展開リストと同様にダイアログ外へはみ出す
+  （下に入りきらなければ上向きに開く）。祖先要素に `transform` / `filter` /
+  `perspective` を掛けると `fixed` の基準がその要素になり位置がずれるので注意。
 - `mount()` 前に `load()` / `save()` を呼ぶとコンソール警告のみ（何もしない）。
 
 ### 3-3. サジェスト候補の見た目をアプリに合わせる（`theme.css` を使わない場合）
@@ -180,7 +183,7 @@ CvsStoreWidget.FavoriteEdit.save();   // Cookie 保存 + favorites-updated 発�
 - `ul.` / `> li.` と要素修飾を付けているのは、埋め込み先ダイアログ側の `li` リセット
   （`... li { padding:0; list-style:none }` 等）に**詳細度で負けない**ため。効かないときは
   さらに親（`#既存ダイアログID .cvs-suggest-item`）を足す。
-- ドロップダウンの幅は `layout.css` が `left:0; right:0` で入力欄ぴったりにしている（`<select>` と同じ）。
+- ドロップダウンの幅・位置は `cvs-store-suggest.js` が入力欄の実寸から設定する（`<select>` と同じく入力欄ぴったり）。CSS 側で `width` / `top` / `left` を上書きしない。
 - 閉じている状態はただの `<input type="text">`。アプリが `input` をスタイル済みなら自動で揃う。
 - **スマホ版**を作るときは、この `.cvs-suggest-*` を `@media` でタップ向けに調整する
   （`padding` を広げる、`:hover` ルールは外す、`max-height` を見直す 等）。アプリのレスポンシブCSSの

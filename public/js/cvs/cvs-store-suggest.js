@@ -27,6 +27,58 @@ CvsStoreWidget.util.StoreSuggest = (function ($) {
     var $list = options.$list;
     var debounceTimer = null;
     var isComposing = false;
+    var repositionBound = false;
+
+    // 候補リストは position:fixed（layout.css）。ダイアログ中身の overflow に
+    // クリップされてダイアログ端で見切れるのを避けるため、ネイティブ <select> の
+    // 展開リストと同じく viewport 基準で浮かせる。位置・幅は入力欄の実座標から
+    // ここで設定し、表示中はスクロール／リサイズに追従させる。
+    function positionList() {
+      var el = $input[0];
+      if (!el || typeof el.getBoundingClientRect !== 'function') { return; }
+
+      var rect = el.getBoundingClientRect();
+      var viewportH = window.innerHeight || document.documentElement.clientHeight;
+      var GAP = 2;      // 入力欄との隙間
+      var MARGIN = 8;   // 画面端との最小マージン
+      var spaceBelow = viewportH - rect.bottom - MARGIN;
+      var spaceAbove = rect.top - MARGIN;
+
+      // 幅を確定させてから高さを測る（測定中は max-height を外し、いったん下向き配置）
+      $list.css({
+        position: 'fixed',
+        left: Math.round(rect.left) + 'px',
+        width: Math.round(rect.width) + 'px',
+        top: Math.round(rect.bottom + GAP) + 'px',
+        bottom: 'auto',
+        maxHeight: 'none'
+      });
+
+      // 下に入りきらず、かつ上の方が広ければ <select> 同様に上向きに開く
+      var naturalH = $list.outerHeight();
+      var openUp = naturalH > spaceBelow && spaceAbove > spaceBelow;
+      var avail = Math.max(80, openUp ? spaceAbove : spaceBelow);
+
+      $list.css('maxHeight', Math.min(220, avail) + 'px');
+      if (openUp) {
+        $list.css({ top: 'auto', bottom: Math.round(viewportH - rect.top + GAP) + 'px' });
+      }
+    }
+
+    function bindReposition() {
+      if (repositionBound) { return; }
+      repositionBound = true;
+      $(window).on('scroll.cvsSuggest resize.cvsSuggest', positionList);
+      // 入力欄を含むスクロール領域（jQuery UI ダイアログ中身など）の内部スクロールにも追従
+      $input.closest('.ui-dialog-content').on('scroll.cvsSuggest', positionList);
+    }
+
+    function unbindReposition() {
+      if (!repositionBound) { return; }
+      repositionBound = false;
+      $(window).off('scroll.cvsSuggest resize.cvsSuggest', positionList);
+      $input.closest('.ui-dialog-content').off('scroll.cvsSuggest', positionList);
+    }
 
     // IME変換中（かな漢字変換の未確定文字列）はサジェスト検索を走らせない。
     // 変換中にinputイベントごとに検索すると、変換途中の文字列でAPIを叩いてしまい
@@ -108,7 +160,7 @@ CvsStoreWidget.util.StoreSuggest = (function ($) {
       if (results.length === 0) {
         var emptyMessage = options.emptyMessage || '該当する店舗がありません';
         $list.append($('<li class="cvs-suggest-empty"></li>').text(emptyMessage));
-        $list.show();
+        showList();
         return;
       }
 
@@ -122,11 +174,18 @@ CvsStoreWidget.util.StoreSuggest = (function ($) {
         });
         $list.append($item);
       });
+      showList();
+    }
+
+    function showList() {
       $list.show();
+      positionList();
+      bindReposition();
     }
 
     function hide() {
       $list.hide().empty();
+      unbindReposition();
     }
 
     // 入力欄への直接入力以外（お気に入り選択など）からも候補一覧を表示できるようにする。

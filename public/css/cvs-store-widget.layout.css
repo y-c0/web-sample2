@@ -41,19 +41,21 @@
   flex-wrap: wrap;
 }
 
-/* サジェスト: 入力欄をアンカーにドロップダウンを重ねる */
+/* サジェスト: 入力欄をアンカーにドロップダウンを重ねる（JS未実行時のフォールバック用） */
 .cvs-store-widget .cvs-autocomplete-wrapper {
   position: relative;
 }
 
 .cvs-store-widget .cvs-suggest-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 10;
+  /* ダイアログ中身は overflow:auto でクリップするため、absolute だと画面端／ダイアログ端で
+     候補が見切れる。ネイティブ <select> の展開リストと同じく祖先の overflow に縛られない
+     よう viewport 基準（fixed）にし、top/left/width は cvs-store-suggest.js が入力欄の
+     実座標から設定する（下に入りきらなければ上向きに開く）。 */
+  position: fixed;
+  z-index: 10000; /* jQuery UI dialog（既定 z-index 100 前後）より前面 */
   max-height: 220px;
   overflow-y: auto;
+  overflow-x: hidden;
   /* <ul> のブラウザ既定（余白・行頭記号）を消す構造リセット */
   margin: 0;
   padding: 0;
