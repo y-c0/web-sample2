@@ -1,0 +1,254 @@
+/*
+ * 調査対象店舗選択ウィジェット 専用スタイル（自己完結・名前空間化済み）
+ *
+ * - すべてのセレクタを .cvs-store-widget 配下にスコープし、クラス名は cvs- 接頭辞付き。
+ *   ホストアプリの .modal / .btn / .form-row 等との衝突を避ける。
+ * - ポップアップのルート <div> には class="cvs-store-widget cvs-modal-overlay" を付ける。
+ * - このファイル1枚をアプリに読み込めばウィジェットの見た目が完結する。
+ */
+
+/* box-sizing はウィジェット内で必ず border-box にする（ホストの設定に依存しない） */
+.cvs-store-widget.cvs-modal-overlay,
+.cvs-store-widget.cvs-modal-overlay * {
+  box-sizing: border-box;
+}
+
+/* ---- オーバーレイ / モーダル ---- */
+
+.cvs-store-widget.cvs-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+}
+
+.cvs-store-widget .cvs-modal {
+  background: #fff;
+  width: 480px;
+  max-width: calc(100% - 32px);
+  max-height: calc(100% - 64px);
+  border-radius: 6px;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  color: #222;
+  font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Yu Gothic", sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.cvs-store-widget .cvs-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.cvs-store-widget .cvs-modal-header h2 {
+  font-size: 16px;
+  margin: 0;
+}
+
+.cvs-store-widget .cvs-modal-close {
+  border: none;
+  background: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+}
+
+.cvs-store-widget .cvs-modal-body {
+  padding: 16px 20px;
+}
+
+.cvs-store-widget .cvs-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #e1e4e8;
+}
+
+/* ---- ボタン ---- */
+
+.cvs-store-widget .cvs-btn {
+  border: 1px solid #b9bec7;
+  background: #fff;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: normal;
+  cursor: pointer;
+}
+
+.cvs-store-widget .cvs-btn:hover {
+  background: #f0f1f3;
+}
+
+.cvs-store-widget .cvs-btn-primary {
+  background: #1a73e8;
+  border-color: #1a73e8;
+  color: #fff;
+}
+
+.cvs-store-widget .cvs-btn-primary:hover {
+  background: #1660c4;
+}
+
+.cvs-store-widget .cvs-btn-secondary {
+  color: #333;
+}
+
+/* ---- フォーム行 ---- */
+
+.cvs-store-widget .cvs-form-row {
+  margin-bottom: 16px;
+}
+
+.cvs-store-widget .cvs-form-row label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.cvs-store-widget .cvs-required {
+  color: #d93025;
+  font-size: 11px;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+.cvs-store-widget .cvs-form-row select,
+.cvs-store-widget .cvs-form-row input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: normal;
+  margin: 0;
+  border: 1px solid #c4c9d0;
+  border-radius: 4px;
+}
+
+.cvs-store-widget .cvs-hint {
+  font-size: 12px;
+  color: #b06a00;
+  margin: 6px 0 0;
+}
+
+.cvs-store-widget .cvs-error-message {
+  font-size: 12px;
+  color: #d93025;
+  margin: 0;
+}
+
+/* ---- お気に入り編集の行 ---- */
+
+.cvs-store-widget .cvs-favorite-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cvs-store-widget .cvs-favorite-edit-row label {
+  flex: 0 0 20px;
+  margin-bottom: 0;
+  color: #888;
+  font-weight: normal;
+}
+
+.cvs-store-widget .cvs-favorite-edit-row .cvs-autocomplete-wrapper {
+  flex: 1 1 auto;
+}
+
+/* ---- サジェスト ---- */
+
+.cvs-store-widget .cvs-autocomplete-wrapper {
+  position: relative;
+}
+
+.cvs-store-widget .cvs-suggest-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #c4c9d0;
+  border-radius: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.cvs-store-widget .cvs-suggest-item {
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f1f3;
+}
+
+.cvs-store-widget .cvs-suggest-item:last-child {
+  border-bottom: none;
+}
+
+.cvs-store-widget .cvs-suggest-item:hover {
+  background: #f0f6ff;
+}
+
+.cvs-store-widget .cvs-suggest-name {
+  color: #222;
+}
+
+.cvs-store-widget .cvs-suggest-meta {
+  color: #888;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.cvs-store-widget .cvs-suggest-empty {
+  padding: 10px;
+  font-size: 12px;
+  color: #888;
+}
+
+/* ---- お気に入りチップ ---- */
+
+.cvs-store-widget .cvs-favorites-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cvs-store-widget .cvs-favorite-chip {
+  border: 1px solid #b9bec7;
+  background: #f7f8fa;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.cvs-store-widget .cvs-favorite-chip:hover {
+  background: #e8f0fe;
+  border-color: #1a73e8;
+  color: #1a73e8;
+}

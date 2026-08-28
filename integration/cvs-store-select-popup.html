@@ -8,81 +8,87 @@
     <div th:replace="~{fragments/cvs-store-select-popup :: favoriteEditPopup}"></div>
   必要なポップアップだけを埋め込めばよい（両方でも片方でも可）。
 
+  ・この th:replace の <div> は隠れコンテナ（自前モーダル・非activeタブ・display:none 等）の
+    中に置かないこと。cvs-modal-overlay は position:fixed の全画面要素なので、
+    <body> 直下（共通レイアウトなら <body> 末尾）に置くのが前提。
+  ・スタイルは cvs-store-widget.css を読み込む（クラスはすべて cvs- 接頭辞＋
+    .cvs-store-widget 配下にスコープ済みなので、ホストの .modal / .btn 等とは衝突しない）。
+  ・スクリプトの読み込みと CvsStoreWidget.config.contextPath の設定はホスト画面側で行う。
+    詳細は README.md を参照。
+
   この html/head/body スケルトンはフラグメント解決時には描画されない（整形式にするための入れ物）。
-  スクリプトの読み込みと CvsStoreWidget.config.contextPath の設定は
-  ホスト画面（またはレイアウト）側で行う。詳細は README.md を参照。
 */-->
 <html xmlns:th="http://www.thymeleaf.org" lang="ja">
 <head><meta charset="UTF-8"><title>cvs-store-select popup fragments</title></head>
 <body>
 
 <!-- 調査対象店舗選択ポップアップ（モーダル） -->
-<div th:fragment="storeSelectPopup" id="storeSelectModalOverlay" class="modal-overlay" style="display:none;">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="storeSelectModalTitle">
-    <div class="modal-header">
+<div th:fragment="storeSelectPopup" id="storeSelectModalOverlay" class="cvs-store-widget cvs-modal-overlay" style="display:none;">
+  <div class="cvs-modal" role="dialog" aria-modal="true" aria-labelledby="storeSelectModalTitle">
+    <div class="cvs-modal-header">
       <h2 id="storeSelectModalTitle">店舗選択</h2>
-      <button type="button" id="btnModalClose" class="modal-close" aria-label="閉じる">&times;</button>
+      <button type="button" id="btnModalClose" class="cvs-modal-close" aria-label="閉じる">&times;</button>
     </div>
 
-    <div class="modal-body">
-      <div class="form-row">
+    <div class="cvs-modal-body">
+      <div class="cvs-form-row">
         <label>お気に入り店舗</label>
-        <div id="favoritesList" class="favorites-list"></div>
-        <p id="favoritesEmptyMessage" class="hint" style="display:none;">お気に入り店舗が登録されていません。</p>
+        <div id="favoritesList" class="cvs-favorites-list"></div>
+        <p id="favoritesEmptyMessage" class="cvs-hint" style="display:none;">お気に入り店舗が登録されていません。</p>
       </div>
 
-      <div class="form-row">
-        <label for="storeNameInput">店舗名 <span class="required">必須</span></label>
-        <div class="autocomplete-wrapper">
+      <div class="cvs-form-row">
+        <label for="storeNameInput">店舗名 <span class="cvs-required">必須</span></label>
+        <div class="cvs-autocomplete-wrapper">
           <input type="text" id="storeNameInput" autocomplete="off" placeholder="店舗名を入力してください">
-          <ul id="suggestList" class="suggest-list" style="display:none;"></ul>
+          <ul id="suggestList" class="cvs-suggest-list" style="display:none;"></ul>
         </div>
         <input type="hidden" id="selectedStoreId" value="">
-        <p id="newStoreHint" class="hint" style="display:none;">店舗マスタに未登録の店舗として扱われます。「OK」を押すと新規店舗として登録するか確認します。</p>
+        <p id="newStoreHint" class="cvs-hint" style="display:none;">店舗マスタに未登録の店舗として扱われます。「OK」を押すと新規店舗として登録するか確認します。</p>
       </div>
 
-      <div class="form-row">
-        <label for="chainSelect">チェーン名 <span class="required">必須</span></label>
+      <div class="cvs-form-row">
+        <label for="chainSelect">チェーン名 <span class="cvs-required">必須</span></label>
         <select id="chainSelect"><option value="">選択してください</option></select>
       </div>
 
-      <div class="form-row">
-        <label for="locationSelect">立地条件 <span class="required">必須</span></label>
+      <div class="cvs-form-row">
+        <label for="locationSelect">立地条件 <span class="cvs-required">必須</span></label>
         <select id="locationSelect"><option value="">選択してください</option></select>
       </div>
 
-      <div class="form-row">
-        <label for="prefectureSelect">都道府県 <span class="required">必須</span></label>
+      <div class="cvs-form-row">
+        <label for="prefectureSelect">都道府県 <span class="cvs-required">必須</span></label>
         <select id="prefectureSelect"><option value="">選択してください</option></select>
       </div>
 
-      <p id="formErrorMessage" class="error-message" style="display:none;"></p>
+      <p id="formErrorMessage" class="cvs-error-message" style="display:none;"></p>
     </div>
 
-    <div class="modal-footer">
-      <button type="button" id="btnConfirm" class="btn btn-primary">OK</button>
-      <button type="button" id="btnCancel" class="btn btn-secondary">キャンセル</button>
+    <div class="cvs-modal-footer">
+      <button type="button" id="btnConfirm" class="cvs-btn cvs-btn-primary">OK</button>
+      <button type="button" id="btnCancel" class="cvs-btn cvs-btn-secondary">キャンセル</button>
     </div>
   </div>
 </div>
 
 <!-- お気に入り店舗編集ポップアップ（モーダル） -->
-<div th:fragment="favoriteEditPopup" id="favoriteEditModalOverlay" class="modal-overlay" style="display:none;">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="favoriteEditModalTitle">
-    <div class="modal-header">
+<div th:fragment="favoriteEditPopup" id="favoriteEditModalOverlay" class="cvs-store-widget cvs-modal-overlay" style="display:none;">
+  <div class="cvs-modal" role="dialog" aria-modal="true" aria-labelledby="favoriteEditModalTitle">
+    <div class="cvs-modal-header">
       <h2 id="favoriteEditModalTitle">お気に入り店舗を編集</h2>
-      <button type="button" id="btnFavoriteEditModalClose" class="modal-close" aria-label="閉じる">&times;</button>
+      <button type="button" id="btnFavoriteEditModalClose" class="cvs-modal-close" aria-label="閉じる">&times;</button>
     </div>
 
-    <div class="modal-body">
-      <p class="hint">店舗名を最大10件まで入力できます。入力すると店舗マスタから候補をサジェストします。空欄の行は保存されません。</p>
+    <div class="cvs-modal-body">
+      <p class="cvs-hint">店舗名を最大10件まで入力できます。入力すると店舗マスタから候補をサジェストします。空欄の行は保存されません。</p>
       <div id="favoriteEditRows"></div>
-      <p id="favoriteEditErrorMessage" class="error-message" style="display:none;"></p>
+      <p id="favoriteEditErrorMessage" class="cvs-error-message" style="display:none;"></p>
     </div>
 
-    <div class="modal-footer">
-      <button type="button" id="btnFavoriteEditCancel" class="btn btn-secondary">キャンセル</button>
-      <button type="button" id="btnFavoriteEditSave" class="btn btn-primary">保存</button>
+    <div class="cvs-modal-footer">
+      <button type="button" id="btnFavoriteEditCancel" class="cvs-btn cvs-btn-secondary">キャンセル</button>
+      <button type="button" id="btnFavoriteEditSave" class="cvs-btn cvs-btn-primary">保存</button>
     </div>
   </div>
 </div>

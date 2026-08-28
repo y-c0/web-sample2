@@ -108,6 +108,30 @@ apiUrl を node で単体確認（contextPath 既定''／'/cvs-survey/'／'/cvs-
 
 ＝＝＝＝＝＝＝
 
+組み込み中。th:replace とjsを反映して open() は呼べるがポップアップが出ない。
+→ 切り分けの結果、オーバーレイは display:block だが position が static（.modal-overlay のCSS未適用/上書き）で、
+  本文の一番下にインライン表示されてしまう。名前空間化してほしい。
+
+実施内容（CSS名前空間化）
+- 新規 public/css/cvs-store-widget.css：モーダル関連スタイルを全部ここへ集約。
+  クラス名は cvs- 接頭辞（cvs-modal-overlay / cvs-modal / cvs-btn / cvs-form-row / cvs-suggest-* など）、
+  全セレクタを .cvs-store-widget 配下にスコープ。box-sizing:border-box をウィジェット内で強制。z-index:100000。
+- public/css/style.css：モーダル関連ルール（旧 .modal* 等）を削除し、上記ファイルへ誘導するコメントのみ残す。
+  デモホスト用（.page/.panel/.btn/.result-table 等）はそのまま。
+- public/index.html：<link> に cvs-store-widget.css 追加。2つのモーダルのルートdivに class="cvs-store-widget cvs-modal-overlay"、
+  中のクラスをすべて cvs- 接頭辞へ。
+- integration/cvs-store-select-popup.html：同じく名前空間化。置き場所の注意
+  （position:fixed なので隠れコンテナや transform 祖先の中に置かない、body直下へ）をコメントに明記。
+- JS：クラスを生成している箇所を cvs- 接頭辞へ（cvs-store-suggest.js の suggest-item/name/meta/empty、
+  cvs-store-select.js の favorite-chip、cvs-favorite-edit.js の form-row/favorite-edit-row/autocomplete-wrapper/suggest-list）。
+  ※JSはこれらクラスをセレクタで参照しておらず生成のみなので安全。
+- integration/README.md：コピー対象に cvs-store-widget.css を追加、置き場所の注意、残課題からCSSスコープ項目を削除。
+
+確認：全 cvs JS の node --check OK。モック起動で /css/cvs-store-widget.css が200、
+index.html の <link> と cvs-store-widget/cvs-modal-overlay クラスを確認。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

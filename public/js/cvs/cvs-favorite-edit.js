@@ -30,14 +30,14 @@ CvsStoreWidget.FavoriteEdit = (function ($) {
   }
 
   function addFavoriteRow(index) {
-    var $row = $('<div class="form-row favorite-edit-row"></div>');
+    var $row = $('<div class="cvs-form-row cvs-favorite-edit-row"></div>');
     $row.append($('<label></label>').attr('for', 'favoriteInput' + index).text((index + 1) + '.'));
 
-    var $wrapper = $('<div class="autocomplete-wrapper"></div>');
+    var $wrapper = $('<div class="cvs-autocomplete-wrapper"></div>');
     var $input = $('<input type="text" autocomplete="off">')
       .attr('id', 'favoriteInput' + index)
       .attr('placeholder', '店舗名を入力してください');
-    var $list = $('<ul class="suggest-list" style="display:none;"></ul>');
+    var $list = $('<ul class="cvs-suggest-list" style="display:none;"></ul>');
 
     $wrapper.append($input).append($list);
     $row.append($wrapper);

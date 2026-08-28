@@ -107,15 +107,15 @@ CvsStoreWidget.util.StoreSuggest = (function ($) {
 
       if (results.length === 0) {
         var emptyMessage = options.emptyMessage || '該当する店舗がありません';
-        $list.append($('<li class="suggest-empty"></li>').text(emptyMessage));
+        $list.append($('<li class="cvs-suggest-empty"></li>').text(emptyMessage));
         $list.show();
         return;
       }
 
       $.each(results, function (i, store) {
-        var $item = $('<li class="suggest-item"></li>');
-        $item.append($('<span class="suggest-name"></span>').text(store.nm_cvs_store));
-        $item.append($('<span class="suggest-meta"></span>').text(store.nm_cvs_chain + ' / ' + store.nm_region));
+        var $item = $('<li class="cvs-suggest-item"></li>');
+        $item.append($('<span class="cvs-suggest-name"></span>').text(store.nm_cvs_store));
+        $item.append($('<span class="cvs-suggest-meta"></span>').text(store.nm_cvs_chain + ' / ' + store.nm_region));
         $item.on('click', function () {
           options.onSelect(store);
           hide();

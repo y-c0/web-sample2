@@ -8,8 +8,8 @@
 | モック側 | 社内アプリ側（例） |
 |---|---|
 | `public/js/cvs/*.js`（6本） | `src/main/resources/static/js/cvs/` |
+| `public/css/cvs-store-widget.css` | `src/main/resources/static/css/`（`<link>` で読み込む。自己完結・名前空間化済み） |
 | `integration/cvs-store-select-popup.html` | `src/main/resources/templates/fragments/cvs-store-select-popup.html` |
-| `public/css/style.css` のモーダル関連部分 | アプリのCSSへ（`.modal` `.modal-overlay` `.form-row` `.btn` `.suggest-list` `.favorites-list` `.favorite-chip` `.hint` `.error-message` `.required` など） |
 
 **コピーしないもの:** `public/js/jquery-1.7.2.min.js`（社内アプリの jQuery を使う）、
 `public/js/main.js`（デモホスト画面専用の配線）、`public/index.html`、`server.js`、`config.js`、`data/`。
@@ -25,6 +25,12 @@
 
 必要なポップアップだけでよい（片方だけの埋め込みも可。使われない側のJSは初期化ガードで空振りする）。
 
+**置き場所に注意**: `cvs-modal-overlay` は `position: fixed` の全画面要素。隠れコンテナ
+（自前モーダルの中／非activeのタブペイン／`display:none` の親／`<template>`／`th:if` で
+畳まれた `th:block`）の中に置くと表示されない。また `transform` / `filter` を持つ祖先が
+あると `position: fixed` がその祖先基準になり画面下部に流れて出る。
+→ **`<body>` 直下（共通レイアウトならレイアウトの `<body>` 末尾）** に置くこと。
+
 ### 2. スクリプトを読み込む（読み込み順が重要）
 
 ```html
@@ -37,6 +43,9 @@
   window.CvsStoreWidget.config = window.CvsStoreWidget.config || {};
   window.CvsStoreWidget.config.contextPath = /*[[@{/}]]*/ '';
 </script>
+
+<!-- スタイル（head 内） -->
+<link rel="stylesheet" th:href="@{/css/cvs-store-widget.css}">
 
 <!-- 3. ウィジェット本体（この順序で） -->
 <script th:src="@{/js/cvs/cvs-api-config.js}"></script>
@@ -101,9 +110,8 @@ $(document).on('favorites-updated', function (e, savedNames) {
   （`/api/cvs_chains` 等の POST、`/api/stores` の PUT）が 403 になる。
   `<meta name="_csrf">` / `<meta name="_csrf_header">` を出力し、非GETの `$.ajax` に
   ヘッダを付与する処理を `cvs-api-config.js` に追加する。
-- **CSS スコープ**: `.modal` `.btn` 等が汎用的。`.cvs-store-widget` 配下へネストして
-  アプリCSSとの衝突を避ける。
-- **ID 接頭辞**: `#storeNameInput` `#chainSelect` `#btnConfirm` 等がアプリと衝突しうる。
+- **ID 接頭辞**: `#storeNameInput` `#chainSelect` `#btnConfirm` 等がアプリと衝突しうる
+  （CSS のクラス名は `cvs-` 接頭辞＋`.cvs-store-widget` スコープで対応済み。IDは未対応）。
 - **お気に入り Cookie**: `favoriteStores`（`path=/`）。Cookie名前空間の衝突確認、
   コンテキストパスへの `path` 限定、サーバ永続化への置き換え要否。
 - **認証**: モックの `config.local.js` 手書きCookieプロキシは検証用の割り切り。

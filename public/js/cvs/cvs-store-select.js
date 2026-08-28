@@ -154,7 +154,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
     $favoritesEmptyMessage.hide();
 
     $.each(favorites, function (i, name) {
-      var $chip = $('<button type="button" class="favorite-chip"></button>').text(name);
+      var $chip = $('<button type="button" class="cvs-favorite-chip"></button>').text(name);
       $chip.on('click', function () {
         selectFavorite(name);
       });
