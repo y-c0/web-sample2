@@ -8,8 +8,14 @@
 | モック側 | 社内アプリ側（例） |
 |---|---|
 | `public/js/cvs/*.js`（6本） | `src/main/resources/static/js/cvs/` |
-| `public/css/cvs-store-widget.css` | `src/main/resources/static/css/`（`<link>` で読み込む。自己完結・名前空間化済み） |
+| `public/css/cvs-store-widget.layout.css` | `src/main/resources/static/css/`（構造。全画面共用・変更不要） |
+| `public/css/cvs-store-widget.theme.css` | `src/main/resources/static/css/`（外観。スマホ/PC等で差し替え可） |
 | `integration/cvs-store-select-popup.html` | `src/main/resources/templates/fragments/cvs-store-select-popup.html` |
+
+CSS は名前空間化済み（クラスは `cvs-` 接頭辞、全セレクタ `.cvs-store-widget` 配下）。
+**layout → theme の順**で読み込む。layout 単体でも機能する（見た目は素っ気ない）。
+theme は同一セレクタを後勝ちで上書きする前提。外観を画面幅で変えたいときは
+theme を複製して値を変える、または `<link media="...">` で出し分ける（layout は共用）。
 
 **コピーしないもの:** `public/js/jquery-1.7.2.min.js`（社内アプリの jQuery を使う）、
 `public/js/main.js`（デモホスト画面専用の配線）、`public/index.html`、`server.js`、`config.js`、`data/`。
@@ -44,8 +50,14 @@
   window.CvsStoreWidget.config.contextPath = /*[[@{/}]]*/ '';
 </script>
 
-<!-- スタイル（head 内） -->
-<link rel="stylesheet" th:href="@{/css/cvs-store-widget.css}">
+<!-- スタイル（head 内。layout → theme の順） -->
+<link rel="stylesheet" th:href="@{/css/cvs-store-widget.layout.css}">
+<link rel="stylesheet" th:href="@{/css/cvs-store-widget.theme.css}">
+<!-- スマホ/PCで分ける例:
+<link rel="stylesheet" th:href="@{/css/cvs-store-widget.layout.css}">
+<link rel="stylesheet" media="(max-width:640px)" th:href="@{/css/cvs-store-widget.theme.sp.css}">
+<link rel="stylesheet" media="(min-width:641px)" th:href="@{/css/cvs-store-widget.theme.pc.css}">
+-->
 
 <!-- 3. ウィジェット本体（この順序で） -->
 <script th:src="@{/js/cvs/cvs-api-config.js}"></script>

@@ -1,40 +1,27 @@
 /*
- * 調査対象店舗選択ウィジェット 専用スタイル（自己完結・名前空間化済み）
+ * 調査対象店舗選択ウィジェット — テーマ（外観）スタイル
  *
- * - すべてのセレクタを .cvs-store-widget 配下にスコープし、クラス名は cvs- 接頭辞付き。
- *   ホストアプリの .modal / .btn / .form-row 等との衝突を避ける。
- * - ポップアップのルート <div> には class="cvs-store-widget cvs-modal-overlay" を付ける。
- * - このファイル1枚をアプリに読み込めばウィジェットの見た目が完結する。
+ * 色・フォント・余白・角丸・影・ホバーなど「見た目だけ」。
+ * これを差し替えても機能・レイアウトは壊れない（土台は cvs-store-widget.layout.css）。
+ *
+ * 読み込み順は「layout → theme」。ここが同一セレクタを後勝ちで上書きする。
+ * 社内アプリでスマホ版/PC版など外観を変えたい場合は、このファイルを複製して
+ * 値を調整するか、メディアクエリを足す（layout.css はそのまま共用）。
+ * 例: <link rel="stylesheet" media="(max-width: 640px)" href=".../cvs-store-widget.theme.sp.css">
+ *     <link rel="stylesheet" media="(min-width: 641px)" href=".../cvs-store-widget.theme.pc.css">
  */
 
-/* box-sizing はウィジェット内で必ず border-box にする（ホストの設定に依存しない） */
-.cvs-store-widget.cvs-modal-overlay,
-.cvs-store-widget.cvs-modal-overlay * {
-  box-sizing: border-box;
-}
-
-/* ---- オーバーレイ / モーダル ---- */
-
+/* 暗幕の濃さ */
 .cvs-store-widget.cvs-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100000;
 }
 
+/* ダイアログ本体の寸法・装飾・文字 */
 .cvs-store-widget .cvs-modal {
-  background: #fff;
   width: 480px;
   max-width: calc(100% - 32px);
   max-height: calc(100% - 64px);
   border-radius: 6px;
-  overflow-y: auto;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   color: #222;
   font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Yu Gothic", sans-serif;
@@ -43,10 +30,8 @@
   text-align: left;
 }
 
+/* ヘッダー / フッター */
 .cvs-store-widget .cvs-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 14px 20px;
   border-bottom: 1px solid #e1e4e8;
 }
@@ -70,15 +55,12 @@
 }
 
 .cvs-store-widget .cvs-modal-footer {
-  display: flex;
-  justify-content: flex-end;
   gap: 10px;
   padding: 14px 20px;
   border-top: 1px solid #e1e4e8;
 }
 
-/* ---- ボタン ---- */
-
+/* ボタン */
 .cvs-store-widget .cvs-btn {
   border: 1px solid #b9bec7;
   background: #fff;
@@ -108,8 +90,7 @@
   color: #333;
 }
 
-/* ---- フォーム行 ---- */
-
+/* フォーム行 */
 .cvs-store-widget .cvs-form-row {
   margin-bottom: 16px;
 }
@@ -130,7 +111,6 @@
 
 .cvs-store-widget .cvs-form-row select,
 .cvs-store-widget .cvs-form-row input[type="text"] {
-  width: 100%;
   padding: 8px 10px;
   font-size: 13px;
   font-family: inherit;
@@ -152,55 +132,31 @@
   margin: 0;
 }
 
-/* ---- お気に入り編集の行 ---- */
-
+/* お気に入り編集の行 */
 .cvs-store-widget .cvs-favorite-edit-row {
-  display: flex;
-  align-items: center;
   gap: 10px;
   margin-bottom: 10px;
 }
 
 .cvs-store-widget .cvs-favorite-edit-row label {
-  flex: 0 0 20px;
+  flex-basis: 20px;
   margin-bottom: 0;
   color: #888;
   font-weight: normal;
 }
 
-.cvs-store-widget .cvs-favorite-edit-row .cvs-autocomplete-wrapper {
-  flex: 1 1 auto;
-}
-
-/* ---- サジェスト ---- */
-
-.cvs-store-widget .cvs-autocomplete-wrapper {
-  position: relative;
-}
-
+/* サジェスト */
 .cvs-store-widget .cvs-suggest-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
   margin: 2px 0 0;
-  padding: 0;
-  list-style: none;
-  background: #fff;
   border: 1px solid #c4c9d0;
   border-radius: 4px;
-  max-height: 220px;
-  overflow-y: auto;
-  z-index: 10;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
 .cvs-store-widget .cvs-suggest-item {
   padding: 8px 10px;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
   gap: 10px;
+  cursor: pointer;
   font-size: 13px;
   border-bottom: 1px solid #f0f1f3;
 }
@@ -229,11 +185,8 @@
   color: #888;
 }
 
-/* ---- お気に入りチップ ---- */
-
+/* お気に入りチップ */
 .cvs-store-widget .cvs-favorites-list {
-  display: flex;
-  flex-wrap: wrap;
   gap: 8px;
 }
 

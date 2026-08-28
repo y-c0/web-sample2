@@ -132,6 +132,30 @@ index.html の <link> と cvs-store-widget/cvs-modal-overlay クラスを確認�
 
 ＝＝＝＝＝＝＝
 
+CSSの読み込み不備を直してポップアップは表示できた。
+cvs-store-widget.css には「ポップアップ成立に必要な要素」と「外観の要素」が両方入っている？
+→ そのとおり。社内アプリはスマホ版/PC版で外観が違うので、構造と外観で分割してほしい。
+
+実施内容（CSS分割）
+- public/css/cvs-store-widget.css を廃止し、2ファイルに分割:
+  - cvs-store-widget.layout.css … 構造のみ（box-sizing、overlay の position:fixed/flex/z-index、
+    .cvs-modal の max-width/height:100%・overflow、header/footer の flex、select/input の width:100%、
+    favorite-edit-row の flex、favorites-list の flex-wrap、autocomplete-wrapper の position:relative、
+    suggest-list の absolute配置と<ul>リセット、suggest-item の flex）。
+    暗幕と .cvs-modal / .cvs-suggest-list の background だけは「透け防止」の構造フォールバックとして残す。
+    このファイル単体でも機能する（見た目は素っ気ない）。
+  - cvs-store-widget.theme.css … 外観のみ（色・フォント・余白・角丸・影・ホバー、
+    .cvs-modal の width:480px と max-width/height:calc、ボタン、hint/error/required、
+    suggest の枠線/影、チップの見た目 など）。同一セレクタを後勝ちで上書き。
+- 読み込み順は layout → theme。スマホ/PCで変えるときは theme を複製 or media 付き <link>、layout は共用。
+- public/index.html：<link> を layout・theme の2本に。
+- integration/README.md・フラグメントのコメント：コピー対象と読み込み順、SP/PC 出し分け例を追記。
+- public/css/style.css：分離先コメントを2ファイル構成に更新。
+
+確認：モック起動で layout.css / theme.css が200、index.html の <link> 2本を確認。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

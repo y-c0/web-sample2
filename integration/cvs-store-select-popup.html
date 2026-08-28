@@ -11,8 +11,10 @@
   ・この th:replace の <div> は隠れコンテナ（自前モーダル・非activeタブ・display:none 等）の
     中に置かないこと。cvs-modal-overlay は position:fixed の全画面要素なので、
     <body> 直下（共通レイアウトなら <body> 末尾）に置くのが前提。
-  ・スタイルは cvs-store-widget.css を読み込む（クラスはすべて cvs- 接頭辞＋
-    .cvs-store-widget 配下にスコープ済みなので、ホストの .modal / .btn 等とは衝突しない）。
+  ・スタイルは cvs-store-widget.layout.css（構造）→ cvs-store-widget.theme.css（外観）の
+    順で読み込む。クラスはすべて cvs- 接頭辞＋ .cvs-store-widget 配下スコープなので
+    ホストの .modal / .btn 等とは衝突しない。外観だけ差し替えたい（スマホ/PC等）場合は
+    theme を複製・調整、または media 付き <link> にする。layout は共用。
   ・スクリプトの読み込みと CvsStoreWidget.config.contextPath の設定はホスト画面側で行う。
     詳細は README.md を参照。
 

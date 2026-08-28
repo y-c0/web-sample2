@@ -1,0 +1,105 @@
+/*
+ * 調査対象店舗選択ウィジェット — レイアウト（構造）スタイル
+ *
+ * これが無いとポップアップとして成立しない土台部分だけ。
+ * 位置・重なり順・ボックスモデル・flex による並び・サジェストの配置など。
+ * 色/フォント/余白/角丸/影といった外観は cvs-store-widget.theme.css 側。
+ *
+ * 読み込み順は「layout → theme」。テーマ側は同一セレクタを後勝ちで上書きする前提。
+ * このファイル単体でも（素っ気ない見た目だが）機能する状態にしてある。
+ * すべて .cvs-store-widget 配下にスコープ、クラスは cvs- 接頭辞。
+ */
+
+/* ボックスモデル: ウィジェット内は必ず border-box（幅計算がホスト設定に依存しないように） */
+.cvs-store-widget.cvs-modal-overlay,
+.cvs-store-widget.cvs-modal-overlay * {
+  box-sizing: border-box;
+}
+
+/* オーバーレイ: ビューポート全面の固定レイヤー */
+.cvs-store-widget.cvs-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 構造フォールバック（暗幕）。濃さ・色はテーマ側で上書き可 */
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* ダイアログ本体: ビューポートを超えない・長い内容はスクロール */
+.cvs-store-widget .cvs-modal {
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  /* 構造フォールバック: 暗幕が透けないよう不透明に。色はテーマ側で上書き可 */
+  background: #fff;
+}
+
+/* ヘッダー/フッター: 横並び */
+.cvs-store-widget .cvs-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cvs-store-widget .cvs-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* フォーム部品は行幅いっぱい */
+.cvs-store-widget .cvs-form-row select,
+.cvs-store-widget .cvs-form-row input[type="text"] {
+  width: 100%;
+}
+
+/* お気に入り編集の行: ラベルは固定・入力欄が伸びる */
+.cvs-store-widget .cvs-favorite-edit-row {
+  display: flex;
+  align-items: center;
+}
+
+.cvs-store-widget .cvs-favorite-edit-row label {
+  flex: 0 0 auto;
+}
+
+.cvs-store-widget .cvs-favorite-edit-row .cvs-autocomplete-wrapper {
+  flex: 1 1 auto;
+}
+
+/* お気に入りチップ: 折り返し */
+.cvs-store-widget .cvs-favorites-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* サジェスト: 入力欄をアンカーにドロップダウンを重ねる */
+.cvs-store-widget .cvs-autocomplete-wrapper {
+  position: relative;
+}
+
+.cvs-store-widget .cvs-suggest-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 220px;
+  overflow-y: auto;
+  /* <ul> のブラウザ既定（余白・行頭記号）を消す構造リセット */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* 構造フォールバック */
+  background: #fff;
+}
+
+.cvs-store-widget .cvs-suggest-item {
+  display: flex;
+  justify-content: space-between;
+}

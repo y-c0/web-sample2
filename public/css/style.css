@@ -110,6 +110,8 @@ h1 {
 }
 
 /*
- * モーダル/ポップアップのスタイルは public/css/cvs-store-widget.css へ分離した
- * （名前空間化済み・自己完結。組み込み時はそのファイル1枚をコピーする）。
+ * モーダル/ポップアップのスタイルは分離済み（名前空間化・自己完結）:
+ *   public/css/cvs-store-widget.layout.css … 構造（位置・重なり・flex）
+ *   public/css/cvs-store-widget.theme.css  … 外観（色・余白・角丸・影）
+ * 読み込み順は layout → theme。
  */
