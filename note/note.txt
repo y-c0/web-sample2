@@ -156,6 +156,39 @@ cvs-store-widget.css には「ポップアップ成立に必要な要素」と�
 
 ＝＝＝＝＝＝＝
 
+既存の社内ポップアップは jQuery UI の dialog() で、引数でサイズ/タイトルを指定している。
+現状の自作モーダルとの違いは？ → B案（中身を jQuery UI dialog に載せ替え）でやってほしい。
+ブランチ 20260828_dialog。
+
+実施内容（自作モーダル → jQuery UI dialog 版）
+- 表示を $().dialog() に変更。フラグメント/index.html のモーダルは「中身だけ」に:
+  <div id="storeSelectDialog" class="cvs-store-widget" title="店舗選択"> ... フォーム行のみ ... </div>
+  タイトルバー・OK/キャンセル・暗幕・位置は jQuery UI が生成。
+- cvs-store-select.js / cvs-favorite-edit.js:
+  - $overlay → $dialog、cacheElements/initDialog/bindEvents に整理
+  - initDialog: dialog({ autoOpen:false, modal:true, width:480, appendTo:'body',
+      title, buttons:[{text:'OK',class:'cvs-dialog-confirm',click:handleConfirm},{text:'キャンセル',...}],
+      open:focus, close:suggest hide })
+  - open(arg): arg が文字列/数値なら file、オブジェクトなら { file,title,width,height,dialogOptions } を
+    dialog('option', ...) で反映してから dialog('open')
+  - close(): dialog('close')。自前の×/背景クリック/ESC 配線は撤去（jQuery UI 任せ）
+  - 二重送信ガードは submitting フラグ＋ .cvs-dialog-confirm の disabled/ui-state-disabled トグルに変更
+  - jQuery UI 未読込なら console.error で警告して初期化スキップ
+- CSS: cvs-store-widget.layout/theme.css から .cvs-modal* / overlay / .cvs-btn* を削除し、
+  「中身」だけのスタイルに縮小。box-sizing は .cvs-store-widget 配下へ再スコープ。
+- モック用に jQuery UI 1.12.1 を同梱（jquery 1.7.2 と互換な最終版）:
+  public/js/vendor/jquery-ui.min.js、public/css/vendor/jquery-ui.min.css + images/。
+  package.json に devDependency と vendor:jquery-ui スクリプト追加。node_modules は .gitignore 済み。
+- index.html: jQuery UI の <link>/<script> を追加、モーダルを中身だけの div に置換。
+- integration/README.md・フラグメントのコメントを dialog 版に全面改訂
+  （前提=jQuery UI、open() 引数でサイズ/タイトル、appendTo:'body' で置き場所は不問 等）。
+
+確認：全 cvs JS の node --check OK。モック起動で jquery-ui.min.js/.css/icons が200、
+index.html に storeSelectDialog/favoriteEditDialog と jQuery UI 参照を確認、旧クラス/IDの残存なし。
+ブラウザでのクリック確認はこの環境（chromium未導入）では未実施。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

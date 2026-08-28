@@ -3,96 +3,71 @@
   調査対象店舗選択ウィジェットの Thymeleaf フラグメント。
   社内アプリでは src/main/resources/templates/fragments/ に置く想定。
 
+  ● 表示方式: jQuery UI の $().dialog() を使う（既存の社内ダイアログと同じ仕組み）。
+    ここに書くのは「ダイアログの中身」だけ。タイトルバー・OK/キャンセルボタン・
+    背景の暗幕は jQuery UI が生成する。ルート要素の title 属性がダイアログ見出しになる
+    （open() 呼び出し時に title / width を引数で上書きも可能）。
+
   使い方（ホスト画面側）:
     <div th:replace="~{fragments/cvs-store-select-popup :: storeSelectPopup}"></div>
     <div th:replace="~{fragments/cvs-store-select-popup :: favoriteEditPopup}"></div>
-  必要なポップアップだけを埋め込めばよい（両方でも片方でも可）。
+  必要なポップアップだけでよい（片方でも可）。
 
-  ・この th:replace の <div> は隠れコンテナ（自前モーダル・非activeタブ・display:none 等）の
-    中に置かないこと。cvs-modal-overlay は position:fixed の全画面要素なので、
-    <body> 直下（共通レイアウトなら <body> 末尾）に置くのが前提。
-  ・スタイルは cvs-store-widget.layout.css（構造）→ cvs-store-widget.theme.css（外観）の
-    順で読み込む。クラスはすべて cvs- 接頭辞＋ .cvs-store-widget 配下スコープなので
-    ホストの .modal / .btn 等とは衝突しない。外観だけ差し替えたい（スマホ/PC等）場合は
-    theme を複製・調整、または media 付き <link> にする。layout は共用。
-  ・スクリプトの読み込みと CvsStoreWidget.config.contextPath の設定はホスト画面側で行う。
-    詳細は README.md を参照。
+  ・jQuery UI（dialog を含むビルド）を読み込んでおくこと。社内アプリが既に .dialog() を
+    使っているなら読み込み済みのはず。
+  ・dialog 初期化時に jQuery UI が中身を <body> 直下へ移動するので、この th:replace の
+    <div> の置き場所はほぼ問わない（ただし <template> の中は不可）。
+  ・スタイルは cvs-store-widget.layout.css（構造）→ cvs-store-widget.theme.css（外観）の順。
+    これらは「中身」だけをスタイルする。ダイアログの枠は jQuery UI テーマの担当。
+  ・スクリプトの読み込み順と CvsStoreWidget.config.contextPath の設定は README.md 参照。
 
-  この html/head/body スケルトンはフラグメント解決時には描画されない（整形式にするための入れ物）。
+  この html/head/body スケルトンはフラグメント解決時には描画されない（整形式のための入れ物）。
 */-->
 <html xmlns:th="http://www.thymeleaf.org" lang="ja">
-<head><meta charset="UTF-8"><title>cvs-store-select popup fragments</title></head>
+<head><meta charset="UTF-8"><title>cvs-store-select dialog fragments</title></head>
 <body>
 
-<!-- 調査対象店舗選択ポップアップ（モーダル） -->
-<div th:fragment="storeSelectPopup" id="storeSelectModalOverlay" class="cvs-store-widget cvs-modal-overlay" style="display:none;">
-  <div class="cvs-modal" role="dialog" aria-modal="true" aria-labelledby="storeSelectModalTitle">
-    <div class="cvs-modal-header">
-      <h2 id="storeSelectModalTitle">店舗選択</h2>
-      <button type="button" id="btnModalClose" class="cvs-modal-close" aria-label="閉じる">&times;</button>
-    </div>
-
-    <div class="cvs-modal-body">
-      <div class="cvs-form-row">
-        <label>お気に入り店舗</label>
-        <div id="favoritesList" class="cvs-favorites-list"></div>
-        <p id="favoritesEmptyMessage" class="cvs-hint" style="display:none;">お気に入り店舗が登録されていません。</p>
-      </div>
-
-      <div class="cvs-form-row">
-        <label for="storeNameInput">店舗名 <span class="cvs-required">必須</span></label>
-        <div class="cvs-autocomplete-wrapper">
-          <input type="text" id="storeNameInput" autocomplete="off" placeholder="店舗名を入力してください">
-          <ul id="suggestList" class="cvs-suggest-list" style="display:none;"></ul>
-        </div>
-        <input type="hidden" id="selectedStoreId" value="">
-        <p id="newStoreHint" class="cvs-hint" style="display:none;">店舗マスタに未登録の店舗として扱われます。「OK」を押すと新規店舗として登録するか確認します。</p>
-      </div>
-
-      <div class="cvs-form-row">
-        <label for="chainSelect">チェーン名 <span class="cvs-required">必須</span></label>
-        <select id="chainSelect"><option value="">選択してください</option></select>
-      </div>
-
-      <div class="cvs-form-row">
-        <label for="locationSelect">立地条件 <span class="cvs-required">必須</span></label>
-        <select id="locationSelect"><option value="">選択してください</option></select>
-      </div>
-
-      <div class="cvs-form-row">
-        <label for="prefectureSelect">都道府県 <span class="cvs-required">必須</span></label>
-        <select id="prefectureSelect"><option value="">選択してください</option></select>
-      </div>
-
-      <p id="formErrorMessage" class="cvs-error-message" style="display:none;"></p>
-    </div>
-
-    <div class="cvs-modal-footer">
-      <button type="button" id="btnConfirm" class="cvs-btn cvs-btn-primary">OK</button>
-      <button type="button" id="btnCancel" class="cvs-btn cvs-btn-secondary">キャンセル</button>
-    </div>
+<!-- 調査対象店舗選択ダイアログ（中身のみ。枠は jQuery UI が生成） -->
+<div th:fragment="storeSelectPopup" id="storeSelectDialog" class="cvs-store-widget" title="店舗選択" style="display:none;">
+  <div class="cvs-form-row">
+    <label>お気に入り店舗</label>
+    <div id="favoritesList" class="cvs-favorites-list"></div>
+    <p id="favoritesEmptyMessage" class="cvs-hint" style="display:none;">お気に入り店舗が登録されていません。</p>
   </div>
+
+  <div class="cvs-form-row">
+    <label for="storeNameInput">店舗名 <span class="cvs-required">必須</span></label>
+    <div class="cvs-autocomplete-wrapper">
+      <input type="text" id="storeNameInput" autocomplete="off" placeholder="店舗名を入力してください">
+      <ul id="suggestList" class="cvs-suggest-list" style="display:none;"></ul>
+    </div>
+    <input type="hidden" id="selectedStoreId" value="">
+    <p id="newStoreHint" class="cvs-hint" style="display:none;">店舗マスタに未登録の店舗として扱われます。「OK」を押すと新規店舗として登録するか確認します。</p>
+  </div>
+
+  <div class="cvs-form-row">
+    <label for="chainSelect">チェーン名 <span class="cvs-required">必須</span></label>
+    <select id="chainSelect"><option value="">選択してください</option></select>
+  </div>
+
+  <div class="cvs-form-row">
+    <label for="locationSelect">立地条件 <span class="cvs-required">必須</span></label>
+    <select id="locationSelect"><option value="">選択してください</option></select>
+  </div>
+
+  <div class="cvs-form-row">
+    <label for="prefectureSelect">都道府県 <span class="cvs-required">必須</span></label>
+    <select id="prefectureSelect"><option value="">選択してください</option></select>
+  </div>
+
+  <p id="formErrorMessage" class="cvs-error-message" style="display:none;"></p>
 </div>
 
-<!-- お気に入り店舗編集ポップアップ（モーダル） -->
-<div th:fragment="favoriteEditPopup" id="favoriteEditModalOverlay" class="cvs-store-widget cvs-modal-overlay" style="display:none;">
-  <div class="cvs-modal" role="dialog" aria-modal="true" aria-labelledby="favoriteEditModalTitle">
-    <div class="cvs-modal-header">
-      <h2 id="favoriteEditModalTitle">お気に入り店舗を編集</h2>
-      <button type="button" id="btnFavoriteEditModalClose" class="cvs-modal-close" aria-label="閉じる">&times;</button>
-    </div>
-
-    <div class="cvs-modal-body">
-      <p class="cvs-hint">店舗名を最大10件まで入力できます。入力すると店舗マスタから候補をサジェストします。空欄の行は保存されません。</p>
-      <div id="favoriteEditRows"></div>
-      <p id="favoriteEditErrorMessage" class="cvs-error-message" style="display:none;"></p>
-    </div>
-
-    <div class="cvs-modal-footer">
-      <button type="button" id="btnFavoriteEditCancel" class="cvs-btn cvs-btn-secondary">キャンセル</button>
-      <button type="button" id="btnFavoriteEditSave" class="cvs-btn cvs-btn-primary">保存</button>
-    </div>
-  </div>
+<!-- お気に入り店舗編集ダイアログ（中身のみ） -->
+<div th:fragment="favoriteEditPopup" id="favoriteEditDialog" class="cvs-store-widget" title="お気に入り店舗を編集" style="display:none;">
+  <p class="cvs-hint">店舗名を最大10件まで入力できます。入力すると店舗マスタから候補をサジェストします。空欄の行は保存されません。</p>
+  <div id="favoriteEditRows"></div>
+  <p id="favoriteEditErrorMessage" class="cvs-error-message" style="display:none;"></p>
 </div>
 
 </body>

@@ -1,9 +1,15 @@
 /*
- * 調査対象店舗選択ポップアップ
- * window.CvsStoreWidget.StoreSelect.open(file) / close() を公開する。
- * file はホスト画面から受け取る関連ファイルのIDまたはファイル名（任意）で、
- * 新規店舗登録時のリクエストにそのまま乗せる。
- * 「決定」で登録に成功すると document に 'store-selected' カスタムイベントを発火する。
+ * 調査対象店舗選択ポップアップ（jQuery UI dialog 版）
+ *
+ * window.CvsStoreWidget.StoreSelect.open(arg) / close() を公開する。
+ *   open() の引数:
+ *     - 文字列/数値      … 関連ファイルのID or ファイル名（新規店舗登録リクエストに乗せる）
+ *     - オブジェクト      … { file, title, width, height, dialogOptions }
+ *                           title / width / height / 任意の dialog オプションをその場で上書きできる
+ * 「OK」で登録に成功すると document に 'store-selected' カスタムイベントを発火する。
+ *
+ * 表示は jQuery UI の $().dialog() を使う（タイトルバー・OK/キャンセル・暗幕は jQuery UI が生成）。
+ * フラグメントには「中身」だけを置く。jquery-ui（dialog を含む）を先に読み込むこと。
  */
 window.CvsStoreWidget = window.CvsStoreWidget || {};
 
@@ -17,17 +23,21 @@ CvsStoreWidget.StoreSelect = (function ($) {
   var PATHS = CvsStoreWidget.config.paths;
   var apiUrl = CvsStoreWidget.util.apiUrl;
 
-  var $overlay, $storeNameInput, $suggestList, $selectedStoreIdInput,
+  var DEFAULT_TITLE = '店舗選択';
+
+  var $dialog, $storeNameInput, $suggestList, $selectedStoreIdInput,
     $chainSelect, $locationSelect, $prefectureSelect,
-    $favoritesList, $favoritesEmptyMessage, $newStoreHint, $formErrorMessage, $btnConfirm;
+    $favoritesList, $favoritesEmptyMessage, $newStoreHint, $formErrorMessage;
 
   var optionsLoaded = false;
   var suggestController = null;
   var appliedStore = null;
   var currentFile = null;
+  var dialogReady = false;
+  var submitting = false;
 
   function cacheElements() {
-    $overlay = $('#storeSelectModalOverlay');
+    $dialog = $('#storeSelectDialog');
     $storeNameInput = $('#storeNameInput');
     $suggestList = $('#suggestList');
     $selectedStoreIdInput = $('#selectedStoreId');
@@ -38,20 +48,27 @@ CvsStoreWidget.StoreSelect = (function ($) {
     $favoritesEmptyMessage = $('#favoritesEmptyMessage');
     $newStoreHint = $('#newStoreHint');
     $formErrorMessage = $('#formErrorMessage');
-    $btnConfirm = $('#btnConfirm');
+  }
+
+  function initDialog() {
+    $dialog.dialog({
+      autoOpen: false,
+      modal: true,
+      width: 480,
+      appendTo: 'body',
+      closeText: '閉じる',
+      title: $dialog.attr('title') || DEFAULT_TITLE,
+      buttons: [
+        { text: 'OK', 'class': 'cvs-dialog-confirm', click: handleConfirm },
+        { text: 'キャンセル', click: function () { $dialog.dialog('close'); } }
+      ],
+      open: function () { $storeNameInput.focus(); },
+      close: function () { if (suggestController) suggestController.hide(); }
+    });
+    dialogReady = true;
   }
 
   function bindEvents() {
-    $('#btnModalClose, #btnCancel').on('click', close);
-
-    $overlay.on('click', function (e) {
-      if (e.target === $overlay[0]) close();
-    });
-
-    $(document).on('keydown', function (e) {
-      if (e.keyCode === 27 && $overlay.is(':visible')) close();
-    });
-
     suggestController = StoreSuggest.attach({
       $input: $storeNameInput,
       $list: $suggestList,
@@ -69,23 +86,42 @@ CvsStoreWidget.StoreSelect = (function ($) {
     $chainSelect.on('change', refreshNewStoreHint);
     $locationSelect.on('change', refreshNewStoreHint);
     $prefectureSelect.on('change', refreshNewStoreHint);
-
-    $btnConfirm.on('click', handleConfirm);
   }
 
-  function open(file) {
+  // open() の引数を { file, title, width, height, dialogOptions } に正規化する。
+  function toOpenOptions(arg) {
+    if (arg == null) return {};
+    if (typeof arg === 'object') return arg;
+    return { file: arg };
+  }
+
+  function applyDialogOptions(opts) {
+    if (opts.title != null) $dialog.dialog('option', 'title', opts.title);
+    if (opts.width != null) $dialog.dialog('option', 'width', opts.width);
+    if (opts.height != null) $dialog.dialog('option', 'height', opts.height);
+    if (opts.dialogOptions) $dialog.dialog('option', opts.dialogOptions);
+  }
+
+  function open(arg) {
+    var opts = toOpenOptions(arg);
     resetForm();
-    currentFile = file || null;
+    currentFile = opts.file || null;
+    applyDialogOptions(opts);
     loadOptionsIfNeeded(function () {
       renderFavorites();
-      $overlay.show();
-      $storeNameInput.focus();
+      $dialog.dialog('open');
     });
   }
 
   function close() {
-    $overlay.hide();
-    suggestController.hide();
+    if (dialogReady) $dialog.dialog('close');
+  }
+
+  function setConfirmEnabled(enabled) {
+    if (!dialogReady) return;
+    $dialog.dialog('widget').find('.cvs-dialog-confirm')
+      .prop('disabled', !enabled)
+      .toggleClass('ui-state-disabled', !enabled);
   }
 
   function resetForm() {
@@ -95,10 +131,11 @@ CvsStoreWidget.StoreSelect = (function ($) {
     $locationSelect.val('');
     $prefectureSelect.val('');
     appliedStore = null;
+    submitting = false;
+    setConfirmEnabled(true);
     $newStoreHint.hide();
     $formErrorMessage.hide().text('');
-    $btnConfirm.prop('disabled', false);
-    suggestController.hide();
+    if (suggestController) suggestController.hide();
   }
 
   function loadOptionsIfNeeded(callback) {
@@ -236,7 +273,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
   }
 
   function handleConfirm() {
-    if ($btnConfirm.prop('disabled')) return;
+    if (submitting) return;
 
     var values = getCurrentValues();
 
@@ -262,8 +299,9 @@ CvsStoreWidget.StoreSelect = (function ($) {
     var newPayload = $.extend({ id_cvs_store: null, file: currentFile }, values);
 
     // 登録APIは非冪等（呼ぶたびに新規店舗が作られる）なので、レスポンスが返るまで
-    // ボタンを無効化して連打による二重登録を防ぐ。失敗時のみ再度有効化する。
-    $btnConfirm.prop('disabled', true);
+    // 送信中フラグ＋OKボタン無効化で連打による二重登録を防ぐ。失敗時のみ解除する。
+    submitting = true;
+    setConfirmEnabled(false);
 
     $.ajax({
       url: apiUrl(PATHS.REGISTER_TARGET_STORE),
@@ -272,11 +310,13 @@ CvsStoreWidget.StoreSelect = (function ($) {
       data: JSON.stringify(newPayload),
       success: function (response) {
         newPayload.id_cvs_store = response.id_cvs_store;
+        submitting = false;
         close();
         $(document).trigger('store-selected', [newPayload]);
       },
       error: function () {
-        $btnConfirm.prop('disabled', false);
+        submitting = false;
+        setConfirmEnabled(true);
         $formErrorMessage.text('登録に失敗しました。時間をおいて再度お試しください。').show();
       }
     });
@@ -284,9 +324,16 @@ CvsStoreWidget.StoreSelect = (function ($) {
 
   $(function () {
     cacheElements();
-    // この画面に店舗選択モーダルが埋め込まれていなければ何もしない（部分埋め込み対応）。
-    if (!$overlay.length) return;
+    // この画面に店舗選択ダイアログが無ければ何もしない（部分埋め込み対応）。
+    if (!$dialog.length) return;
+    if (typeof $.fn.dialog !== 'function') {
+      if (window.console && console.error) {
+        console.error('[CvsStoreWidget] jQuery UI の dialog が見つかりません。jquery-ui を読み込んでください。');
+      }
+      return;
+    }
     bindEvents();
+    initDialog();
   });
 
   return {

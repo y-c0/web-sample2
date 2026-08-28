@@ -3,22 +3,31 @@
 このモックリポジトリの「調査対象店舗選択ポップアップ」＋「お気に入り編集ポップアップ」を
 社内アプリへ組み込むための資材と手順。
 
+**表示方式**: jQuery UI の `$().dialog()` を使う（社内アプリの既存ダイアログと同じ仕組み）。
+タイトルバー・OK/キャンセルボタン・背景の暗幕・位置決めは jQuery UI が担当し、
+フラグメントには「ダイアログの中身」だけを置く。
+
+## 前提
+
+- 社内アプリの **jQuery**（ウィジェットは jQuery 1.7.2 で動作確認。バージョンは合わせる）
+- 社内アプリの **jQuery UI**（`dialog` を含むビルド）。既に `.dialog()` を使っているなら読み込み済み。
+  モックは検証用に jQuery UI 1.12.1 を `public/{js,css}/vendor/` に同梱している。
+
 ## コピーするファイル
 
 | モック側 | 社内アプリ側（例） |
 |---|---|
 | `public/js/cvs/*.js`（6本） | `src/main/resources/static/js/cvs/` |
-| `public/css/cvs-store-widget.layout.css` | `src/main/resources/static/css/`（構造。全画面共用・変更不要） |
-| `public/css/cvs-store-widget.theme.css` | `src/main/resources/static/css/`（外観。スマホ/PC等で差し替え可） |
+| `public/css/cvs-store-widget.layout.css` | `src/main/resources/static/css/`（中身の構造。全画面共用・変更不要） |
+| `public/css/cvs-store-widget.theme.css` | `src/main/resources/static/css/`（中身の外観。スマホ/PC等で差し替え可） |
 | `integration/cvs-store-select-popup.html` | `src/main/resources/templates/fragments/cvs-store-select-popup.html` |
 
-CSS は名前空間化済み（クラスは `cvs-` 接頭辞、全セレクタ `.cvs-store-widget` 配下）。
-**layout → theme の順**で読み込む。layout 単体でも機能する（見た目は素っ気ない）。
-theme は同一セレクタを後勝ちで上書きする前提。外観を画面幅で変えたいときは
-theme を複製して値を変える、または `<link media="...">` で出し分ける（layout は共用）。
+CSS は名前空間化済み（クラスは `cvs-` 接頭辞、全セレクタ `.cvs-store-widget` 配下）で、
+**ダイアログの中身だけ**をスタイルする。ダイアログの枠は社内アプリの jQuery UI テーマがそのまま効く。
+`layout → theme` の順で読み込む。外観を画面幅で変えたいときは theme を複製 or `<link media="...">` で出し分け（layout は共用）。
 
-**コピーしないもの:** `public/js/jquery-1.7.2.min.js`（社内アプリの jQuery を使う）、
-`public/js/main.js`（デモホスト画面専用の配線）、`public/index.html`、`server.js`、`config.js`、`data/`。
+**コピーしないもの:** `public/js/jquery-1.7.2.min.js`、`public/{js,css}/vendor/`（jQuery UI。社内アプリのものを使う）、
+`public/js/main.js`（デモホスト専用の配線）、`public/index.html`、`server.js`、`config.js`、`data/`。
 
 ## ホスト画面（ポップアップを開く画面）への組み込み
 
@@ -29,37 +38,30 @@ theme を複製して値を変える、または `<link media="...">` で出し�
 <div th:replace="~{fragments/cvs-store-select-popup :: favoriteEditPopup}"></div>
 ```
 
-必要なポップアップだけでよい（片方だけの埋め込みも可。使われない側のJSは初期化ガードで空振りする）。
+必要なポップアップだけでよい（片方でも可。使われない側のJSは初期化ガードで空振りする）。
+`dialog` 初期化時に jQuery UI が中身を `<body>` 直下へ移動する（`appendTo: 'body'`）ので、
+この `th:replace` の `<div>` の置き場所はほぼ問わない（ただし `<template>` の中は不可）。
 
-**置き場所に注意**: `cvs-modal-overlay` は `position: fixed` の全画面要素。隠れコンテナ
-（自前モーダルの中／非activeのタブペイン／`display:none` の親／`<template>`／`th:if` で
-畳まれた `th:block`）の中に置くと表示されない。また `transform` / `filter` を持つ祖先が
-あると `position: fixed` がその祖先基準になり画面下部に流れて出る。
-→ **`<body>` 直下（共通レイアウトならレイアウトの `<body>` 末尾）** に置くこと。
-
-### 2. スクリプトを読み込む（読み込み順が重要）
+### 2. スクリプト/スタイルを読み込む（順序が重要）
 
 ```html
-<!-- 1. jQuery（アプリ既存のものを利用。二重読み込みしない） -->
-<script src="/js/jquery.min.js"></script>
+<!-- head 内 -->
+<link rel="stylesheet" th:href="@{/webjars/jquery-ui/…/jquery-ui.min.css}"><!-- 社内アプリ既存のもの -->
+<link rel="stylesheet" th:href="@{/css/cvs-store-widget.layout.css}">
+<link rel="stylesheet" th:href="@{/css/cvs-store-widget.theme.css}">
 
-<!-- 2. コンテキストパスをウィジェットへ渡す（cvs-api-config.js より前） -->
+<!-- body 終端付近 -->
+<script src="/js/jquery.min.js"></script>            <!-- 既存 -->
+<script src="/js/jquery-ui.min.js"></script>          <!-- 既存（dialog を含む） -->
+
+<!-- コンテキストパスをウィジェットへ渡す（cvs-api-config.js より前） -->
 <script th:inline="javascript">
   window.CvsStoreWidget = window.CvsStoreWidget || {};
   window.CvsStoreWidget.config = window.CvsStoreWidget.config || {};
   window.CvsStoreWidget.config.contextPath = /*[[@{/}]]*/ '';
 </script>
 
-<!-- スタイル（head 内。layout → theme の順） -->
-<link rel="stylesheet" th:href="@{/css/cvs-store-widget.layout.css}">
-<link rel="stylesheet" th:href="@{/css/cvs-store-widget.theme.css}">
-<!-- スマホ/PCで分ける例:
-<link rel="stylesheet" th:href="@{/css/cvs-store-widget.layout.css}">
-<link rel="stylesheet" media="(max-width:640px)" th:href="@{/css/cvs-store-widget.theme.sp.css}">
-<link rel="stylesheet" media="(min-width:641px)" th:href="@{/css/cvs-store-widget.theme.pc.css}">
--->
-
-<!-- 3. ウィジェット本体（この順序で） -->
+<!-- ウィジェット本体（この順序で） -->
 <script th:src="@{/js/cvs/cvs-api-config.js}"></script>
 <script th:src="@{/js/cvs/cvs-cookie-util.js}"></script>
 <script th:src="@{/js/cvs/cvs-favorites-util.js}"></script>
@@ -70,17 +72,29 @@ theme を複製して値を変える、または `<link media="...">` で出し�
 
 `@{/}` は Thymeleaf がコンテキストパス（末尾スラッシュ付き。例 `/cvs-survey/`、ルート直下なら `/`）を出力する。
 `cvs-api-config.js` の `apiUrl()` が末尾スラッシュを正規化して各APIパスへ前置する。
-共通レイアウト（`layout:fragment` 等）を使っているなら 2・3 はレイアウト側に置くのが楽。
+共通レイアウトを使っているなら、これらはレイアウト側に置くのが楽。
 
 ### 3. ポップアップを開く
 
 ```js
-// 調査対象店舗の選択（file は新規店舗登録リクエストに乗せる関連ファイルID/名。任意）
+// 文字列/数値を渡すと関連ファイルID/名として扱う（新規店舗登録リクエストに乗る）
 CvsStoreWidget.StoreSelect.open(fileParam);
 
-// お気に入り店舗の編集
+// オブジェクトで dialog の見た目をその場で指定できる（既存ダイアログの引数と同じ感覚）
+CvsStoreWidget.StoreSelect.open({
+  file: fileParam,
+  title: '調査対象の店舗を選択',
+  width: 560,
+  height: 'auto',
+  dialogOptions: { position: { my: 'center top', at: 'center top+80' } } // 任意の jQuery UI dialog オプション
+});
+
 CvsStoreWidget.FavoriteEdit.open();
+CvsStoreWidget.FavoriteEdit.open({ title: 'よく使う店舗', width: 520 });
 ```
+
+サイズ・タイトルは CSS/HTML ではなく **`open()` の引数**で渡す。スマホ/PCで幅を変えたい場合は
+呼び出し側で出し分けるか、`dialogOptions` を使う。
 
 ### 4. 結果を受け取る（`document` のカスタムイベント）
 
@@ -122,12 +136,12 @@ $(document).on('favorites-updated', function (e, savedNames) {
   （`/api/cvs_chains` 等の POST、`/api/stores` の PUT）が 403 になる。
   `<meta name="_csrf">` / `<meta name="_csrf_header">` を出力し、非GETの `$.ajax` に
   ヘッダを付与する処理を `cvs-api-config.js` に追加する。
-- **ID 接頭辞**: `#storeNameInput` `#chainSelect` `#btnConfirm` 等がアプリと衝突しうる
+- **ID 接頭辞**: `#storeNameInput` `#chainSelect` `#storeSelectDialog` 等がアプリと衝突しうる
   （CSS のクラス名は `cvs-` 接頭辞＋`.cvs-store-widget` スコープで対応済み。IDは未対応）。
 - **お気に入り Cookie**: `favoriteStores`（`path=/`）。Cookie名前空間の衝突確認、
   コンテキストパスへの `path` 限定、サーバ永続化への置き換え要否。
 - **認証**: モックの `config.local.js` 手書きCookieプロキシは検証用の割り切り。
   組み込み後は実アプリのセッションで直接APIを呼ぶ。
-- **`window.confirm`**: 新規店舗登録確認のネイティブダイアログをアプリのモーダルに揃える。
+- **`window.confirm`**: 新規店舗登録確認のネイティブダイアログをアプリ流に揃える。
 - **API 仕様の実機検証**: 一覧を「空bodyのPOST」で取る点、`PUT /api/stores` がサーバ側で
   ID採番する点が社内APIの実挙動と一致するか要確認。

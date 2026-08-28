@@ -1,93 +1,18 @@
 /*
  * 調査対象店舗選択ウィジェット — テーマ（外観）スタイル
  *
- * 色・フォント・余白・角丸・影・ホバーなど「見た目だけ」。
- * これを差し替えても機能・レイアウトは壊れない（土台は cvs-store-widget.layout.css）。
+ * jQuery UI dialog 版。色・フォント・余白・角丸・影・ホバーなど「見た目だけ」。
+ * ダイアログの枠は jQuery UI テーマの担当。ここが持つのは中身（フォーム行・
+ * サジェスト・お気に入りチップ）の外観。
  *
  * 読み込み順は「layout → theme」。ここが同一セレクタを後勝ちで上書きする。
  * 社内アプリでスマホ版/PC版など外観を変えたい場合は、このファイルを複製して
  * 値を調整するか、メディアクエリを足す（layout.css はそのまま共用）。
- * 例: <link rel="stylesheet" media="(max-width: 640px)" href=".../cvs-store-widget.theme.sp.css">
- *     <link rel="stylesheet" media="(min-width: 641px)" href=".../cvs-store-widget.theme.pc.css">
  */
 
-/* 暗幕の濃さ */
-.cvs-store-widget.cvs-modal-overlay {
-  background: rgba(0, 0, 0, 0.45);
-}
-
-/* ダイアログ本体の寸法・装飾・文字 */
-.cvs-store-widget .cvs-modal {
-  width: 480px;
-  max-width: calc(100% - 32px);
-  max-height: calc(100% - 64px);
-  border-radius: 6px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  color: #222;
-  font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Yu Gothic", sans-serif;
+/* 中身の基準文字サイズ（px 指定が崩れないように。font-family は jQuery UI テーマから継承） */
+.cvs-store-widget {
   font-size: 13px;
-  line-height: 1.5;
-  text-align: left;
-}
-
-/* ヘッダー / フッター */
-.cvs-store-widget .cvs-modal-header {
-  padding: 14px 20px;
-  border-bottom: 1px solid #e1e4e8;
-}
-
-.cvs-store-widget .cvs-modal-header h2 {
-  font-size: 16px;
-  margin: 0;
-}
-
-.cvs-store-widget .cvs-modal-close {
-  border: none;
-  background: none;
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  color: #666;
-}
-
-.cvs-store-widget .cvs-modal-body {
-  padding: 16px 20px;
-}
-
-.cvs-store-widget .cvs-modal-footer {
-  gap: 10px;
-  padding: 14px 20px;
-  border-top: 1px solid #e1e4e8;
-}
-
-/* ボタン */
-.cvs-store-widget .cvs-btn {
-  border: 1px solid #b9bec7;
-  background: #fff;
-  border-radius: 4px;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-family: inherit;
-  line-height: normal;
-  cursor: pointer;
-}
-
-.cvs-store-widget .cvs-btn:hover {
-  background: #f0f1f3;
-}
-
-.cvs-store-widget .cvs-btn-primary {
-  background: #1a73e8;
-  border-color: #1a73e8;
-  color: #fff;
-}
-
-.cvs-store-widget .cvs-btn-primary:hover {
-  background: #1660c4;
-}
-
-.cvs-store-widget .cvs-btn-secondary {
-  color: #333;
 }
 
 /* フォーム行 */

@@ -5,9 +5,13 @@
   "private": true,
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "vendor:jquery-ui": "node -e \"var fs=require('fs');fs.copyFileSync('node_modules/jquery-ui-dist/jquery-ui.min.js','public/js/vendor/jquery-ui.min.js');fs.copyFileSync('node_modules/jquery-ui-dist/jquery-ui.min.css','public/css/vendor/jquery-ui.min.css');fs.mkdirSync('public/css/vendor/images',{recursive:true});fs.readdirSync('node_modules/jquery-ui-dist/images').forEach(function(f){fs.copyFileSync('node_modules/jquery-ui-dist/images/'+f,'public/css/vendor/images/'+f)});console.log('vendored jquery-ui');\""
   },
   "dependencies": {
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "jquery-ui-dist": "^1.12.1"
   }
 }

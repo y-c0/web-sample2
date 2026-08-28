@@ -110,8 +110,9 @@ h1 {
 }
 
 /*
- * モーダル/ポップアップのスタイルは分離済み（名前空間化・自己完結）:
- *   public/css/cvs-store-widget.layout.css … 構造（位置・重なり・flex）
- *   public/css/cvs-store-widget.theme.css  … 外観（色・余白・角丸・影）
+ * ポップアップは jQuery UI dialog で表示する（枠は jQuery UI テーマ担当）。
+ * ダイアログ中身のスタイルは分離済み（名前空間化）:
+ *   public/css/cvs-store-widget.layout.css … 中身の構造（flex・サジェスト配置）
+ *   public/css/cvs-store-widget.theme.css  … 中身の外観（色・余白・角丸）
  * 読み込み順は layout → theme。
  */
