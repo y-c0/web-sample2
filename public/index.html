@@ -91,11 +91,24 @@
   <p id="formErrorMessage" class="cvs-error-message" style="display:none;"></p>
 </div>
 
-<!-- お気に入り店舗編集ダイアログ（中身のみ） -->
-<div id="favoriteEditDialog" class="cvs-store-widget" title="お気に入り店舗を編集" style="display:none;">
-  <p class="cvs-hint">店舗名を最大10件まで入力できます。入力すると店舗マスタから候補をサジェストします。空欄の行は保存されません。</p>
-  <div id="favoriteEditRows"></div>
-  <p id="favoriteEditErrorMessage" class="cvs-error-message" style="display:none;"></p>
+<!--
+  社内アプリの「既存ダイアログ」に見立てたデモ用ダイアログ。
+  無関係なダミー項目に加えて、お気に入り店舗名セクション（favoriteEditFields 相当）を含む。
+  JS 側で CvsStoreWidget.FavoriteEdit.mount() し、open/save/close にフックする（main.js 参照）。
+-->
+<div id="demoHostDialog" title="ユーザー設定（デモ：既存ダイアログ）" style="display:none;">
+  <div class="cvs-store-widget">
+    <div class="cvs-form-row">
+      <label for="demoDisplayName">表示名（ダミー項目）</label>
+      <input type="text" id="demoDisplayName" autocomplete="off">
+    </div>
+
+    <div class="cvs-form-row">
+      <label>お気に入り店舗</label>
+      <p class="cvs-hint">店舗名を最大10件まで入力できます。入力すると店舗マスタから候補をサジェストします。空欄の行は保存されません。</p>
+      <div data-cvs-favorite-edit-rows></div>
+    </div>
+  </div>
 </div>
 
 <script src="js/jquery-1.7.2.min.js"></script>

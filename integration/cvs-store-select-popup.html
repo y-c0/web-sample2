@@ -3,20 +3,23 @@
   調査対象店舗選択ウィジェットの Thymeleaf フラグメント。
   社内アプリでは src/main/resources/templates/fragments/ に置く想定。
 
-  ● 表示方式: jQuery UI の $().dialog() を使う（既存の社内ダイアログと同じ仕組み）。
-    ここに書くのは「ダイアログの中身」だけ。タイトルバー・OK/キャンセルボタン・
-    背景の暗幕は jQuery UI が生成する。ルート要素の title 属性がダイアログ見出しになる
-    （open() 呼び出し時に title / width を引数で上書きも可能）。
+  ● storeSelectPopup … jQuery UI の $().dialog() で開く「調査対象店舗選択」の中身。
+    タイトルバー・OK/キャンセル・暗幕は jQuery UI が生成する。ルート要素の title 属性が
+    ダイアログ見出しになる（open() 呼び出し時に title / width を引数で上書きも可能）。
+
+  ● favoriteEditFields … 「お気に入り店舗名 × 最大10件」の入力欄セクション。
+    単独ダイアログではなく、社内アプリ側の既存ダイアログの中身テンプレートへ埋め込んで使う。
+    JS 側: CvsStoreWidget.FavoriteEdit.mount() で行を生成し、ホストダイアログの
+    open で load()、OK で save()、close で reset() を呼ぶ（詳細は README.md）。
 
   使い方（ホスト画面側）:
     <div th:replace="~{fragments/cvs-store-select-popup :: storeSelectPopup}"></div>
-    <div th:replace="~{fragments/cvs-store-select-popup :: favoriteEditPopup}"></div>
-  必要なポップアップだけでよい（片方でも可）。
+    ...既存ダイアログの中身テンプレート内...
+      <div th:replace="~{fragments/cvs-store-select-popup :: favoriteEditFields}"></div>
 
-  ・jQuery UI（dialog を含むビルド）を読み込んでおくこと。社内アプリが既に .dialog() を
-    使っているなら読み込み済みのはず。
-  ・dialog 初期化時に jQuery UI が中身を <body> 直下へ移動するので、この th:replace の
-    <div> の置き場所はほぼ問わない（ただし <template> の中は不可）。
+  ・jQuery UI（dialog を含むビルド）を読み込んでおくこと。
+  ・storeSelectPopup は dialog 初期化時に jQuery UI が中身を <body> 直下へ移動するので
+    置き場所はほぼ問わない（ただし <template> の中は不可）。
   ・スタイルは cvs-store-widget.layout.css（構造）→ cvs-store-widget.theme.css（外観）の順。
     これらは「中身」だけをスタイルする。ダイアログの枠は jQuery UI テーマの担当。
   ・スクリプトの読み込み順と CvsStoreWidget.config.contextPath の設定は README.md 参照。
@@ -63,11 +66,10 @@
   <p id="formErrorMessage" class="cvs-error-message" style="display:none;"></p>
 </div>
 
-<!-- お気に入り店舗編集ダイアログ（中身のみ） -->
-<div th:fragment="favoriteEditPopup" id="favoriteEditDialog" class="cvs-store-widget" title="お気に入り店舗を編集" style="display:none;">
+<!-- お気に入り店舗名の入力欄セクション（ホストの既存ダイアログの中身へ th:replace で埋め込む） -->
+<div th:fragment="favoriteEditFields" class="cvs-store-widget">
   <p class="cvs-hint">店舗名を最大10件まで入力できます。入力すると店舗マスタから候補をサジェストします。空欄の行は保存されません。</p>
-  <div id="favoriteEditRows"></div>
-  <p id="favoriteEditErrorMessage" class="cvs-error-message" style="display:none;"></p>
+  <div data-cvs-favorite-edit-rows></div>
 </div>
 
 </body>

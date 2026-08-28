@@ -1,11 +1,14 @@
 # 調査対象店舗選択ウィジェット — 社内アプリ（Spring Boot + Thymeleaf）組み込み手順
 
-このモックリポジトリの「調査対象店舗選択ポップアップ」＋「お気に入り編集ポップアップ」を
+このモックリポジトリの「調査対象店舗選択ポップアップ」＋「お気に入り店舗名の入力欄」を
 社内アプリへ組み込むための資材と手順。
 
-**表示方式**: jQuery UI の `$().dialog()` を使う（社内アプリの既存ダイアログと同じ仕組み）。
-タイトルバー・OK/キャンセルボタン・背景の暗幕・位置決めは jQuery UI が担当し、
-フラグメントには「ダイアログの中身」だけを置く。
+**表示方式**:
+- 調査対象店舗選択（`storeSelectPopup`）… jQuery UI の `$().dialog()` で開く。
+  タイトルバー・OK/キャンセル・暗幕・位置決めは jQuery UI が担当し、フラグメントには「中身」だけを置く。
+- お気に入り店舗名（`favoriteEditFields`）… **単独ダイアログではなく**、社内アプリ側の
+  既存ダイアログの中に入力欄セクションとして `th:replace` で埋め込む。JS の
+  `CvsStoreWidget.FavoriteEdit` を、そのダイアログのライフサイクル（open / OK / close）にフックする。
 
 ## 前提
 
@@ -33,14 +36,26 @@ CSS は名前空間化済み（クラスは `cvs-` 接頭辞、全セレクタ `
 
 ### 1. フラグメントを埋め込む
 
+**調査対象店舗選択ダイアログ** — 画面のどこでもよい（`dialog` 初期化時に jQuery UI が
+`<body>` 直下へ移動する。ただし `<template>` の中は不可）:
+
 ```html
 <div th:replace="~{fragments/cvs-store-select-popup :: storeSelectPopup}"></div>
-<div th:replace="~{fragments/cvs-store-select-popup :: favoriteEditPopup}"></div>
 ```
 
-必要なポップアップだけでよい（片方でも可。使われない側のJSは初期化ガードで空振りする）。
-`dialog` 初期化時に jQuery UI が中身を `<body>` 直下へ移動する（`appendTo: 'body'`）ので、
-この `th:replace` の `<div>` の置き場所はほぼ問わない（ただし `<template>` の中は不可）。
+**お気に入り店舗名の入力欄** — 既存ダイアログの**中身テンプレート内**、項目を出したい位置に:
+
+```html
+<!-- 社内アプリの既存ダイアログ（jQuery UI dialog）の中身 -->
+<div id="userPrefsDialog" title="ユーザー設定" style="display:none;">
+  ...既存の項目...
+  <div th:replace="~{fragments/cvs-store-select-popup :: favoriteEditFields}"></div>
+  ...既存の項目...
+</div>
+```
+
+`favoriteEditFields` は `class="cvs-store-widget"` のラッパ＋`<div data-cvs-favorite-edit-rows>`
+（行のマウント先）だけを含む。行そのものは JS の `mount()` が生成する。
 
 ### 2. スクリプト/スタイルを読み込む（順序が重要）
 
@@ -74,7 +89,7 @@ CSS は名前空間化済み（クラスは `cvs-` 接頭辞、全セレクタ `
 `cvs-api-config.js` の `apiUrl()` が末尾スラッシュを正規化して各APIパスへ前置する。
 共通レイアウトを使っているなら、これらはレイアウト側に置くのが楽。
 
-### 3. ポップアップを開く
+### 3-1. 調査対象店舗選択ポップアップを開く
 
 ```js
 // 文字列/数値を渡すと関連ファイルID/名として扱う（新規店舗登録リクエストに乗る）
@@ -88,13 +103,46 @@ CvsStoreWidget.StoreSelect.open({
   height: 'auto',
   dialogOptions: { position: { my: 'center top', at: 'center top+80' } } // 任意の jQuery UI dialog オプション
 });
-
-CvsStoreWidget.FavoriteEdit.open();
-CvsStoreWidget.FavoriteEdit.open({ title: 'よく使う店舗', width: 520 });
 ```
 
-サイズ・タイトルは CSS/HTML ではなく **`open()` の引数**で渡す。スマホ/PCで幅を変えたい場合は
-呼び出し側で出し分けるか、`dialogOptions` を使う。
+サイズ・タイトルは CSS/HTML ではなく **`open()` の引数**で渡す。
+
+### 3-2. お気に入り入力欄を既存ダイアログに配線する
+
+`CvsStoreWidget.FavoriteEdit` の公開API:
+
+| メソッド | 役割 | 呼びどころ |
+|---|---|---|
+| `mount(target?, options?)` | `target`（省略時 `[data-cvs-favorite-edit-rows]`）に入力行を生成しサジェストを付与。`options.count` で行数（既定10） | DOM ready 後に1回 |
+| `load()` | Cookie（`favoriteStores`）から各入力欄を復元 | ダイアログの `open` |
+| `save()` | 入力値を Cookie 保存 → `favorites-updated` 発火 → 保存後配列を返す | 保存ボタン / `beforeClose` |
+| `getValues()` | 現在値（trim 済み配列。保存はしない） | 任意 |
+| `reset()` | 全行のサジェスト候補を閉じる | ダイアログの `close` |
+
+既存ダイアログ（jQuery UI dialog）への配線例:
+
+```js
+CvsStoreWidget.FavoriteEdit.mount('[data-cvs-favorite-edit-rows]');   // 1回だけ
+
+$('#userPrefsDialog').dialog({
+  autoOpen: false, modal: true, width: 480, appendTo: 'body',
+  open:  function () { CvsStoreWidget.FavoriteEdit.load(); },          // 既存の open 処理に追記
+  close: function () { CvsStoreWidget.FavoriteEdit.reset(); },
+  buttons: [
+    { text: '保存', click: function () {
+        /* 既存項目の保存 ... */
+        CvsStoreWidget.FavoriteEdit.save();
+        $(this).dialog('close');
+    } },
+    { text: 'キャンセル', click: function () { $(this).dialog('close'); } }
+  ]
+});
+```
+
+- マウント先（か祖先）に `class="cvs-store-widget"` が必要（フラグメントに同梱済み）。
+- サジェスト候補は `position:absolute`。ダイアログ中身が `overflow:auto` で行数が少ないと
+  長い候補リストが見切れることがある（従来の単独ダイアログでも同様）。
+- `mount()` 前に `load()` / `save()` を呼ぶとコンソール警告のみ（何もしない）。
 
 ### 4. 結果を受け取る（`document` のカスタムイベント）
 
@@ -136,8 +184,9 @@ $(document).on('favorites-updated', function (e, savedNames) {
   （`/api/cvs_chains` 等の POST、`/api/stores` の PUT）が 403 になる。
   `<meta name="_csrf">` / `<meta name="_csrf_header">` を出力し、非GETの `$.ajax` に
   ヘッダを付与する処理を `cvs-api-config.js` に追加する。
-- **ID 接頭辞**: `#storeNameInput` `#chainSelect` `#storeSelectDialog` 等がアプリと衝突しうる
-  （CSS のクラス名は `cvs-` 接頭辞＋`.cvs-store-widget` スコープで対応済み。IDは未対応）。
+- **ID 接頭辞**: `storeSelectPopup` フラグメント側の `#storeNameInput` `#chainSelect` 等がアプリと
+  衝突しうる（CSS のクラス名は `cvs-` 接頭辞＋`.cvs-store-widget` スコープで対応済み。IDは未対応）。
+  お気に入り入力欄の ID は `cvs-favorite-input-0..9` 済み。
 - **お気に入り Cookie**: `favoriteStores`（`path=/`）。Cookie名前空間の衝突確認、
   コンテキストパスへの `path` 限定、サーバ永続化への置き換え要否。
 - **認証**: モックの `config.local.js` 手書きCookieプロキシは検証用の割り切り。

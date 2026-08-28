@@ -189,6 +189,35 @@ index.html に storeSelectDialog/favoriteEditDialog と jQuery UI 参照を確�
 
 ＝＝＝＝＝＝＝
 
+お気に入り登録を、社内アプリの「既存の別ダイアログ」に入力項目を追加する形にしたい。
+どんな作業が必要？ → 保存先は Cookie 継続、単独ダイアログ版は撤去、埋め込み先は jQuery UI dialog。
+
+実施内容（FavoriteEdit を単独ダイアログ → マウント式に）
+- cvs-favorite-edit.js を書き換え。公開APIを差し替え:
+  mount(target?, options?) … [data-cvs-favorite-edit-rows]（省略時）に入力行を生成＋サジェスト付与。
+                             options.count で行数（既定 FavoritesUtil.MAX_COUNT=10）。冪等。
+                             マウント先に .cvs-store-widget が無ければ付与（CSSスコープ用）。
+  load()  … Cookie(favoriteStores) から各入力欄を復元。ホストダイアログの open で呼ぶ。
+  save()  … FavoritesUtil.saveNames で Cookie 保存 → favorites-updated 発火 → 保存後配列を返す。OK で呼ぶ。
+  getValues() … 現在値（trim 済み配列、保存なし）。
+  reset() … 全行のサジェストを閉じる。close で呼ぶ。
+  initDialog/open/close/toOpenOptions/自動初期化 は削除。入力欄IDは cvs-favorite-input-0..9 に。
+  addFavoriteRow / resolvedNames / StoreSuggest / FavoritesUtil はそのまま再利用。
+- フラグメント: favoriteEditPopup → favoriteEditFields（.cvs-store-widget ラッパ＋
+  <div data-cvs-favorite-edit-rows> のみ）。ヘッダコメントも更新。
+- index.html: favoriteEditDialog を廃止し、「既存ダイアログ」に見立てた #demoHostDialog
+  （ダミー項目＋お気に入りセクション）に置換。
+- main.js: #demoHostDialog を jQuery UI dialog 化し、mount()1回＋open→load / 保存→save / close→reset を配線。
+- integration/README.md: お気に入りの節を「既存ダイアログへ項目追加」方式へ全面改訂
+  （API表、jQuery UI dialog への配線例、cvs-store-widget クラス必須、overflow 注意）。
+- cvs-store-select.js 他は無変更（FavoritesUtil.getNames() 依存のみ・Cookie 継続で無影響）。
+
+確認：全 cvs JS＋main.js の node --check OK。stale な FavoriteEdit.open/favoriteEditPopup 参照なし。
+モック起動で #demoHostDialog / data-cvs-favorite-edit-rows / 新API（mount/load/save/reset）を確認。
+ブラウザ実クリック確認はこの環境（chromium 未導入）では未実施。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

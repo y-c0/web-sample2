@@ -73,8 +73,26 @@
       StoreSelect.open(fileParam);
     });
 
+    // お気に入り店舗の入力欄を「既存ダイアログ」に見立てた jQuery UI ダイアログへマウントし、
+    // そのライフサイクル（open / 保存ボタン / close）にウィジェットのメソッドをフックする。
+    // 社内アプリでも同じ配線パターンで既存ダイアログへ組み込む（integration/README.md 参照）。
+    FavoriteEdit.mount('[data-cvs-favorite-edit-rows]');
+    $('#demoHostDialog').dialog({
+      autoOpen: false,
+      modal: true,
+      width: 480,
+      appendTo: 'body',
+      closeText: '閉じる',
+      open: function () { FavoriteEdit.load(); },
+      close: function () { FavoriteEdit.reset(); },
+      buttons: [
+        { text: '保存', click: function () { FavoriteEdit.save(); $(this).dialog('close'); } },
+        { text: 'キャンセル', click: function () { $(this).dialog('close'); } }
+      ]
+    });
+
     $('#btnOpenFavoriteEdit').on('click', function () {
-      FavoriteEdit.open();
+      $('#demoHostDialog').dialog('open');
     });
 
     $(document).on('store-selected', function (e, store) {
