@@ -22,12 +22,16 @@
 |---|---|
 | `public/js/cvs/*.js`（6本） | `src/main/resources/static/js/cvs/` |
 | `public/css/cvs-store-widget.layout.css` | `src/main/resources/static/css/`（中身の構造。全画面共用・変更不要） |
-| `public/css/cvs-store-widget.theme.css` | `src/main/resources/static/css/`（中身の外観。スマホ/PC等で差し替え可） |
+| `public/css/cvs-store-widget.theme.css` | `src/main/resources/static/css/`（**任意**。中身の外観の既定値。アプリCSSで代替可） |
 | `integration/cvs-store-select-popup.html` | `src/main/resources/templates/fragments/cvs-store-select-popup.html` |
 
 CSS は名前空間化済み（クラスは `cvs-` 接頭辞、全セレクタ `.cvs-store-widget` 配下）で、
 **ダイアログの中身だけ**をスタイルする。ダイアログの枠は社内アプリの jQuery UI テーマがそのまま効く。
-`layout → theme` の順で読み込む。外観を画面幅で変えたいときは theme を複製 or `<link media="...">` で出し分け（layout は共用）。
+
+- `layout.css` … 構造（位置・重なり・flex・サジェストの配置）。必須・変更しない。
+- `theme.css` … 外観（色・余白・枠線・影・ホバー）の既定値。**使わずにアプリのCSSで
+  当てても良い**（下記「3-3」参照）。使う場合は `layout → theme` の順で読み込む。
+  画面幅で変えたいときは theme を複製 or `<link media="...">` で出し分け（layout は共用）。
 
 **コピーしないもの:** `public/js/jquery-1.7.2.min.js`、`public/{js,css}/vendor/`（jQuery UI。社内アプリのものを使う）、
 `public/js/main.js`（デモホスト専用の配線）、`public/index.html`、`server.js`、`config.js`、`data/`。
@@ -63,7 +67,7 @@ CSS は名前空間化済み（クラスは `cvs-` 接頭辞、全セレクタ `
 <!-- head 内 -->
 <link rel="stylesheet" th:href="@{/webjars/jquery-ui/…/jquery-ui.min.css}"><!-- 社内アプリ既存のもの -->
 <link rel="stylesheet" th:href="@{/css/cvs-store-widget.layout.css}">
-<link rel="stylesheet" th:href="@{/css/cvs-store-widget.theme.css}">
+<link rel="stylesheet" th:href="@{/css/cvs-store-widget.theme.css}"><!-- 任意。アプリCSSで代替するなら不要（3-3参照） -->
 
 <!-- body 終端付近 -->
 <script src="/js/jquery.min.js"></script>            <!-- 既存 -->
@@ -146,6 +150,43 @@ CvsStoreWidget.FavoriteEdit.save();   // Cookie 保存 + favorites-updated 発�
 - サジェスト候補は `position:absolute`。ダイアログ中身が `overflow:auto` で行数が少ないと
   長い候補リストが見切れることがある。
 - `mount()` 前に `load()` / `save()` を呼ぶとコンソール警告のみ（何もしない）。
+
+### 3-3. サジェスト候補の見た目をアプリに合わせる（`theme.css` を使わない場合）
+
+`layout.css` だけを読み込む構成では、サジェストのドロップダウン（`.cvs-suggest-*`）は
+**構造だけ**が当たった状態（位置は正しいが枠線・影・行の余白・ホバーなし）。
+`theme.css` を使わず社内アプリのCSSに次を追記して、アプリのフォームに馴染ませる。
+色はアプリの `<input>` / `<select>` の枠色・選択色（できれば既存のCSS変数）に合わせて調整する。
+
+```css
+/* 社内アプリのCSS（フォーム系スタイルの近く）に追記。値は要調整 */
+.cvs-store-widget ul.cvs-suggest-list{
+  margin:1px 0 0; background:#fff;
+  border:1px solid #767676;          /* アプリの input/select の枠色に合わせる */
+  border-radius:2px;
+  box-shadow:0 2px 4px rgba(0,0,0,.2);
+  font:inherit;
+}
+.cvs-store-widget .cvs-suggest-list > li.cvs-suggest-item{
+  padding:4px 8px; cursor:pointer;
+}
+.cvs-store-widget .cvs-suggest-list > li.cvs-suggest-item:hover{
+  background:Highlight; color:HighlightText;   /* OSの選択色。固定にするなら #cde8ff 等 */
+}
+.cvs-store-widget .cvs-suggest-meta{ color:#666; font-size:.85em; margin-left:8px }
+.cvs-store-widget .cvs-suggest-empty{ padding:4px 8px; color:#666 }
+```
+
+- `ul.` / `> li.` と要素修飾を付けているのは、埋め込み先ダイアログ側の `li` リセット
+  （`... li { padding:0; list-style:none }` 等）に**詳細度で負けない**ため。効かないときは
+  さらに親（`#既存ダイアログID .cvs-suggest-item`）を足す。
+- ドロップダウンの幅は `layout.css` が `left:0; right:0` で入力欄ぴったりにしている（`<select>` と同じ）。
+- 閉じている状態はただの `<input type="text">`。アプリが `input` をスタイル済みなら自動で揃う。
+- **スマホ版**を作るときは、この `.cvs-suggest-*` を `@media` でタップ向けに調整する
+  （`padding` を広げる、`:hover` ルールは外す、`max-height` を見直す 等）。アプリのレスポンシブCSSの
+  一部として管理する。ネイティブ `<select>` の展開リストは OS 描画のため完全一致はできない。
+- 置き場所は**アプリのCSS**（ウィジェットの `layout.css` は書き換えない）。ウィジェット更新時に
+  上書き・コンフリクトしないため。
 
 ### 4. 結果を受け取る（`document` のカスタムイベント）
 

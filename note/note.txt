@@ -234,6 +234,21 @@ index.html に storeSelectDialog/favoriteEditDialog と jQuery UI 参照を確�
 
 ＝＝＝＝＝＝＝
 
+組み込みで theme.css は使わず layout.css＋社内CSS 構成にした。サジェスト候補だけ layout のみ適用で
+他のプルダウン（素の select）と見た目が違う。アプリCSSに追記するサンプルを組み込み手順に残してほしい。
+
+実施内容（README のみ・コード変更なし）
+- integration/README.md:
+  - 「コピーするファイル」で theme.css を「任意」に。layout=構造(必須)/theme=外観の既定値(アプリCSSで代替可) と明記。
+  - 2. の <link> に theme.css は任意のコメント。
+  - 3-3「サジェスト候補の見た目をアプリに合わせる（theme.css を使わない場合）」を新設。
+    .cvs-suggest-* に当てる最小CSSサンプル（枠線・行padding・hover=システムカラー・meta グレー）、
+    詳細度メモ（ul. / > li. で埋め込み先の li リセットに勝つ）、幅は layout が left/right:0 で入力欄ぴったり、
+    スマホ版は @media で調整、置き場所はアプリCSS（layout.css は書き換えない）。
+- ※素の <select> の展開リストは OS 描画なので完全一致は不可、と明記。
+
+＝＝＝＝＝＝＝
+
 
 note:
 
