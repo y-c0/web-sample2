@@ -9,9 +9,9 @@ window.CvsStoreWidget.util = window.CvsStoreWidget.util || {};
 CvsStoreWidget.util.StoreSuggest = (function ($) {
   'use strict';
 
-  var API_ENDPOINTS = {
-    SUGGEST_STORES: '/api/stores/search'
-  };
+  // APIパスとURL組み立ては cvs-api-config.js に集約（コンテキストパス対応のため）。
+  var apiUrl = CvsStoreWidget.util.apiUrl;
+  var PATHS = CvsStoreWidget.config.paths;
 
   var DEBOUNCE_MS = 300;
 
@@ -95,7 +95,7 @@ CvsStoreWidget.util.StoreSuggest = (function ($) {
     });
 
     function fetchSuggestions(value) {
-      $.getJSON(API_ENDPOINTS.SUGGEST_STORES, { q: value }, function (results) {
+      $.getJSON(apiUrl(PATHS.SUGGEST_STORES), { q: value }, function (results) {
         // 検索中に入力が変わっていたら結果を破棄
         if ($.trim($input.val()) !== value) return;
         render(results);

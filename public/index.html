@@ -122,11 +122,23 @@
 </div>
 
 <script src="js/jquery-1.7.2.min.js"></script>
-<script src="js/cvs-cookie-util.js"></script>
-<script src="js/cvs-favorites-util.js"></script>
-<script src="js/cvs-store-suggest.js"></script>
-<script src="js/cvs-store-select.js"></script>
-<script src="js/cvs-favorite-edit.js"></script>
+
+<!--
+  社内アプリ（Spring Boot + Thymeleaf）へ組み込む際は、cvs-api-config.js より前に
+  コンテキストパスを渡す。詳細は integration/README.md を参照。
+  <script th:inline="javascript">
+    window.CvsStoreWidget = window.CvsStoreWidget || {};
+    window.CvsStoreWidget.config = window.CvsStoreWidget.config || {};
+    window.CvsStoreWidget.config.contextPath = /* Thymeleafで @{/} を出力 */ '';
+  </script>
+  このデモ（モック）ではコンテキストパス無し（''）なので何も出力しない。
+-->
+<script src="js/cvs/cvs-api-config.js"></script>
+<script src="js/cvs/cvs-cookie-util.js"></script>
+<script src="js/cvs/cvs-favorites-util.js"></script>
+<script src="js/cvs/cvs-store-suggest.js"></script>
+<script src="js/cvs/cvs-store-select.js"></script>
+<script src="js/cvs/cvs-favorite-edit.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

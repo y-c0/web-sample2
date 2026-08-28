@@ -5,7 +5,7 @@ const path = require('path');
 const { CHAINS, LOCATION_TYPES, PREFECTURES, STORES } = require('./data/stores');
 const config = require('./config');
 
-// このExpressアプリが公開するAPIのパス（クライアント側の各jsファイル先頭にある API_ENDPOINTS の値と一致させる）
+// このExpressアプリが公開するAPIのパス（クライアント側 public/js/cvs/cvs-api-config.js の config.paths と一致させる）
 const ROUTES = {
   SUGGEST_STORES: '/api/stores/search',
   CHAINS: '/api/cvs_chains',

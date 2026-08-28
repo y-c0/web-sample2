@@ -13,13 +13,9 @@ CvsStoreWidget.StoreSelect = (function ($) {
   var FavoritesUtil = CvsStoreWidget.util.FavoritesUtil;
   var StoreSuggest = CvsStoreWidget.util.StoreSuggest;
 
-  var API_ENDPOINTS = {
-    SUGGEST_STORES: '/api/stores/search',
-    CHAINS: '/api/cvs_chains',
-    LOCATIONS: '/api/cvs_locations',
-    PREFECTURES: '/api/regions',
-    REGISTER_TARGET_STORE: '/api/stores'
-  };
+  // APIパスとURL組み立ては cvs-api-config.js に集約（コンテキストパス対応のため）。
+  var PATHS = CvsStoreWidget.config.paths;
+  var apiUrl = CvsStoreWidget.util.apiUrl;
 
   var $overlay, $storeNameInput, $suggestList, $selectedStoreIdInput,
     $chainSelect, $locationSelect, $prefectureSelect,
@@ -111,9 +107,9 @@ CvsStoreWidget.StoreSelect = (function ($) {
       return;
     }
     $.when(
-      fetchOptionList(API_ENDPOINTS.CHAINS),
-      fetchOptionList(API_ENDPOINTS.LOCATIONS),
-      fetchOptionList(API_ENDPOINTS.PREFECTURES)
+      fetchOptionList(apiUrl(PATHS.CHAINS)),
+      fetchOptionList(apiUrl(PATHS.LOCATIONS)),
+      fetchOptionList(apiUrl(PATHS.PREFECTURES))
     ).done(function (chains, locations, prefectures) {
       // $.when に複数のDeferredを渡すと各引数は [data, textStatus, jqXHR] になる
       // レスポンスは { records: [...] } 形式で返る
@@ -170,7 +166,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
     $storeNameInput.val(name);
     suggestController.hide();
 
-    $.getJSON(API_ENDPOINTS.SUGGEST_STORES, { q: name }, function (results) {
+    $.getJSON(apiUrl(PATHS.SUGGEST_STORES), { q: name }, function (results) {
       var matches = findExactMatches(results, name);
 
       if (matches.length === 1) {
@@ -270,7 +266,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
     $btnConfirm.prop('disabled', true);
 
     $.ajax({
-      url: API_ENDPOINTS.REGISTER_TARGET_STORE,
+      url: apiUrl(PATHS.REGISTER_TARGET_STORE),
       type: 'PUT',
       contentType: 'application/json',
       data: JSON.stringify(newPayload),
@@ -288,6 +284,8 @@ CvsStoreWidget.StoreSelect = (function ($) {
 
   $(function () {
     cacheElements();
+    // この画面に店舗選択モーダルが埋め込まれていなければ何もしない（部分埋め込み対応）。
+    if (!$overlay.length) return;
     bindEvents();
   });
 

@@ -85,6 +85,29 @@ node server.jsで起動すると、/api/...へのアクセスがサーバー側�
 
 ＝＝＝＝＝＝＝
 
+この店舗選択とお気に入り登録ポップアップを社内アプリ（Spring Boot + Thymeleaf）に組み込む準備をしたい。
+・ポップアップHTMLは th:replace でフラグメント埋め込みする方針でよいか？
+・JSは public/js/cvs フォルダに分離してほしい。
+・Ajax APIのURLにコンテキストパスへの考慮が抜けていた。画面側からコンテキストパスをつけて呼べるようにしたいが、モックAPI検証と両立できるか？
+・その他、埋め込みをやりやすくする工夫は？
+
+実施内容
+1. th:replace 方針：問題なし。フラグメントは html/head/body を持たずモーダルdivだけ、scriptはホスト画面側で読み込む方針で integration/ に資材を用意。
+2. JS分離：public/js/cvs-*.js の5本を public/js/cvs/ へ git mv。jquery-1.7.2.min.js と main.js（デモ専用）は据え置き。index.html の script src を js/cvs/... に更新。
+3. コンテキストパス対応：新規 public/js/cvs/cvs-api-config.js に APIパス（config.paths）と CvsStoreWidget.util.apiUrl(path) を集約。
+   従来 cvs-store-select.js / cvs-store-suggest.js に重複していた API_ENDPOINTS を廃止し apiUrl(PATHS.x) 参照に統一。
+   画面が window.CvsStoreWidget.config.contextPath を先にセットしていれば尊重、未設定なら '' でモックは従来通り。
+   社内アプリは cvs-api-config.js より前に th:inline スクリプトで @{/} を contextPath に渡す。末尾スラッシュは apiUrl が正規化。
+4. その他：integration/cvs-store-select-popup.html（名前付き2フラグメント）、integration/README.md（コピー対象・読込順・イベントのペイロード形状・残課題＝CSRF/CSSスコープ/ID接頭辞/Cookie/認証/window.confirm）を追加。
+   部分埋め込み向けに cvs-store-select.js / cvs-favorite-edit.js の初期化に `if (!$overlay.length) return;` ガードを追加。
+   server.js のコメントを cvs-api-config.js 参照に更新（コード変更なし）。
+
+確認：全 cvs JS の node --check OK。モック起動で /js/cvs/*.js が200、/api/cvs_chains・/api/stores/search が正常応答。
+apiUrl を node で単体確認（contextPath 既定''／'/cvs-survey/'／'/cvs-survey'／'/'／事前セット'/preset/' すべて期待通り）。
+ブラウザでのクリック操作確認はこの環境（chromium未導入）では未実施。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

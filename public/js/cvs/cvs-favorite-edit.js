@@ -115,6 +115,8 @@ CvsStoreWidget.FavoriteEdit = (function ($) {
 
   $(function () {
     cacheElements();
+    // この画面にお気に入り編集モーダルが埋め込まれていなければ何もしない（部分埋め込み対応）。
+    if (!$overlay.length) return;
     buildRows();
     bindEvents();
   });
