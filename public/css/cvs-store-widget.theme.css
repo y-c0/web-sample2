@@ -64,7 +64,7 @@
 }
 
 .cvs-store-widget .cvs-favorite-edit-row label {
-  flex-basis: 20px;
+  /* 列幅（flex-basis）は layout.css で固定。ここは見た目だけ。 */
   margin-bottom: 0;
   color: #888;
   font-weight: normal;

@@ -28,7 +28,8 @@
 }
 
 .cvs-store-widget .cvs-favorite-edit-row label {
-  flex: 0 0 auto;
+  /* 行番号（1.〜10.）の列幅を固定。可変にすると "10." だけ広がって入力欄がずれる。 */
+  flex: 0 0 20px;
 }
 
 .cvs-store-widget .cvs-favorite-edit-row .cvs-autocomplete-wrapper {

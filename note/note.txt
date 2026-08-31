@@ -293,6 +293,18 @@ index.html に storeSelectDialog/favoriteEditDialog と jQuery UI 参照を確�
 
 ＝＝＝＝＝＝＝
 
+theme.css を外すと、お気に入り編集の行番号ラベル（1.〜10.）が可変幅になり
+"10." だけ広がって入力欄が右にずれる。原因は theme.css の
+.cvs-favorite-edit-row label { flex-basis: 20px }。
+
+実施内容
+- 列幅固定は装飾でなく構造なので layout.css へ移動。
+  layout.css: .cvs-favorite-edit-row label を flex:0 0 auto → flex:0 0 20px。
+  theme.css: flex-basis:20px を削除し、margin-bottom/color/font-weight のみ残す。
+- これで theme.css 未使用でも番号列が揃う。theme 読込時も layout が唯一の幅指定（競合なし）。
+
+＝＝＝＝＝＝＝
+
 
 note:
 
