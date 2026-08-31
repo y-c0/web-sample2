@@ -62,7 +62,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
       title: $dialog.attr('title') || DEFAULT_TITLE,
       buttons: [
         { text: 'OK', 'class': 'cvs-dialog-confirm', click: handleConfirm },
-        { text: 'キャンセル', click: function () { $dialog.dialog('close'); } }
+        { text: 'Cancel', click: function () { $dialog.dialog('close'); } }
       ],
       open: function () { $storeNameInput.focus(); },
       close: function () { if (suggestController) suggestController.hide(); }
