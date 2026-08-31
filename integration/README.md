@@ -230,14 +230,19 @@ $(document).on('favorites-updated', function (e, savedNames) {
 
 | 用途 | メソッド | パス（コンテキストパス相対） |
 |---|---|---|
-| 店舗名サジェスト | GET | `/api/stores/search?q=...` |
+| 店舗名サジェスト | GET | `/api/stores/search?q=...`（または `?id=<id_cvs_store>`） |
 | チェーン名一覧 | POST（空JSON） | `/api/cvs_chains` |
 | 立地条件一覧 | POST（空JSON） | `/api/cvs_locations` |
 | 都道府県一覧 | POST（空JSON） | `/api/regions` |
 | 調査対象店舗の確定登録 | PUT | `/api/stores` |
 
-一覧系レスポンスは `{ "records": [ ... ] }` 形式を期待する。
-パスが社内APIと異なる場合は `cvs-api-config.js` の `config.paths` を書き換える。
+- 一覧系レスポンスは `{ "records": [ ... ] }` 形式を期待する。
+- サジェストAPIのレスポンスは store オブジェクトの**配列**（`?q=` / `?id=` とも同形式、該当なしは `[]`）。
+- **確定登録 `PUT /api/stores` のレスポンスは `{ "records": { ...店舗1件... } }`**（オブジェクト。配列ではない）。
+  ウィジェットは `response.records`（採番済み `id_cvs_store` を含む店舗データ）を `store-selected` の
+  payload に使う。`records` に含めるべき項目:
+  `id_cvs_store, nm_cvs_store, cd_cvs_chain, nm_cvs_chain, cd_cvs_location, nm_cvs_location, cd_region, nm_region`。
+- パスが社内APIと異なる場合は `cvs-api-config.js` の `config.paths` を書き換える。
 
 ## 組み込み時の残課題（このモックでは未対応）
 

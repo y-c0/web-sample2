@@ -336,10 +336,13 @@ CvsStoreWidget.StoreSelect = (function ($) {
       contentType: 'application/json',
       data: JSON.stringify(newPayload),
       success: function (response) {
-        newPayload.id_cvs_store = response.id_cvs_store;
+        // サーバーが確定登録した店舗データ（採番済みIDを含む）は response.records に入る。
+        // フォームの現在値をベースに、サーバー返却値で上書きする。
+        var record = (response && response.records) || {};
+        var registeredPayload = $.extend({ file: currentFile }, values, record);
         submitting = false;
         close();
-        $(document).trigger('store-selected', [newPayload]);
+        $(document).trigger('store-selected', [registeredPayload]);
       },
       error: function () {
         submitting = false;

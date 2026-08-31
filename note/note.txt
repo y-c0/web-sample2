@@ -275,6 +275,24 @@ index.html に storeSelectDialog/favoriteEditDialog と jQuery UI 参照を確�
 
 ＝＝＝＝＝＝＝
 
+店舗登録API（PUT /api/stores）の戻りも records に包んだ形にしてほしい。
+{ records: { id_cvs_store: 1, nm_cvs_store: ... } }（オブジェクト・配列ではない）。
+
+実施内容
+- server.js: PUT /api/stores のレスポンスを { success:true, id_cvs_store } → { records: record } に変更。
+  record は採番済みIDを含む店舗全項目（＋file, registeredAt）。
+- cvs-store-select.js: 新規登録成功時、response.id_cvs_store 直読みをやめ、
+  registeredPayload = $.extend({ file: currentFile }, values, response.records) を組んで store-selected を発火。
+  サーバー返却値（response.records）で上書きする形。
+- integration/README.md: API節に「PUT /api/stores のレスポンスは { records: {店舗1件} }」
+  「records に含める項目一覧」を明記。サジェストは配列（?q=/?id= 同形式）である点も追記。
+- 既存店舗選択（API呼ばない分岐）は変更なし。
+
+確認: node --check（cvs/*.js, server.js）OK。
+モックで PUT /api/stores → { records: {...} } を確認。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

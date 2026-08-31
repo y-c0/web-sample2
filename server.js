@@ -160,7 +160,8 @@ app.put(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
   registeredTargets.push(record);
   console.log(`[PUT ${ROUTES.REGISTER_TARGET_STORE}]`, record);
 
-  res.json({ success: true, id_cvs_store: record.id_cvs_store });
+  // 確定登録した店舗データ（採番済みID含む）を records に入れて返す（マスタ系APIと同じ包み方）
+  res.json({ records: record });
 });
 
 app.listen(PORT, () => {
