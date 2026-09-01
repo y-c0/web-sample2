@@ -10,6 +10,9 @@
  * - CvsStoreWidget.config.paths  : APIの相対パス（コンテキストパスは含めない）。
  *     従来 cvs-store-select.js / cvs-store-suggest.js に重複定義していた API_ENDPOINTS をここへ統合。
  * - CvsStoreWidget.util.apiUrl(path) : contextPath を前置した実際のURLを返す。
+ * - CvsStoreWidget.config.userIdCookie : 店舗登録時に user_id として送る登録者IDを読む cookie 名。
+ *     既定 'initNoEmp'（社内アプリのログインで入る想定）。
+ *     cookie ではなく値を直接渡したいときは config.userId に文字列をセットすると優先される。
  */
 window.CvsStoreWidget = window.CvsStoreWidget || {};
 window.CvsStoreWidget.util = window.CvsStoreWidget.util || {};
@@ -22,6 +25,11 @@ window.CvsStoreWidget.util = window.CvsStoreWidget.util || {};
   // 画面側が既に文字列でセットしていれば尊重する。未設定時のみ '' を既定にする。
   if (typeof config.contextPath !== 'string') {
     config.contextPath = '';
+  }
+
+  // 店舗登録時の user_id の取得元 cookie 名。既定 'initNoEmp'。
+  if (typeof config.userIdCookie !== 'string') {
+    config.userIdCookie = 'initNoEmp';
   }
 
   config.paths = {

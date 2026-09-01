@@ -305,6 +305,25 @@ theme.css を外すと、お気に入り編集の行番号ラベル（1.〜10.�
 
 ＝＝＝＝＝＝＝
 
+店舗登録時に user_id（登録者のユーザーID）パラメータを追加したい。
+社内アプリでは cookie 'initNoEmp' から取得できる。
+
+実施内容
+- cvs-api-config.js: config.userIdCookie（既定 'initNoEmp'）を追加。
+  値を直接渡したい場合は config.userId が優先。
+- cvs-store-select.js: getUserId()（config.userId 優先→cookie(config.userIdCookie)）を追加。
+  新規店舗登録の newPayload に user_id: getUserId() を追加（PUT /api/stores へ送る）。
+  既存店舗選択（登録API非呼び出し）は変更なし。
+- server.js: PUT /api/stores で user_id を受け取り record に格納（{records}レスポンスにも入る）。
+- main.js: デモ用に cookie 'initNoEmp' が無ければ 'EMP0001' をセット。結果表に user_id を表示。
+- index.html: 結果表に「登録者(user_id)」行を追加。
+- integration/README.md: PUT /api/stores のbodyに user_id が入る旨と config.userIdCookie/userId を明記。
+
+確認: node --check（cvs/*.js, server.js, main.js）OK。
+モックで新規店舗登録 → PUT body に user_id、レスポンス records に user_id を確認。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

@@ -242,6 +242,10 @@ $(document).on('favorites-updated', function (e, savedNames) {
   ウィジェットは `response.records`（採番済み `id_cvs_store` を含む店舗データ）を `store-selected` の
   payload に使う。`records` に含めるべき項目:
   `id_cvs_store, nm_cvs_store, cd_cvs_chain, nm_cvs_chain, cd_cvs_location, nm_cvs_location, cd_region, nm_region`。
+- **確定登録 `PUT /api/stores` のリクエストbodyには `user_id`（登録者のユーザーID）が入る。**
+  既定で cookie `initNoEmp` から読む。cookie 名を変えたい場合は
+  `CvsStoreWidget.config.userIdCookie`、値を直接渡したい場合は `CvsStoreWidget.config.userId` をセットする
+  （`cvs-api-config.js` の後、`th:inline` 等で）。既存店舗を選んだだけの場合は登録APIを呼ばないため送られない。
 - パスが社内APIと異なる場合は `cvs-api-config.js` の `config.paths` を書き換える。
 
 ## 組み込み時の残課題（このモックでは未対応）

@@ -138,7 +138,7 @@ app.put(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
     cd_cvs_chain, nm_cvs_chain,
     cd_cvs_location, nm_cvs_location,
     cd_region, nm_region,
-    file
+    file, user_id
   } = req.body || {};
 
   if (!nm_cvs_store || !cd_cvs_chain || !cd_cvs_location || !cd_region) {
@@ -155,6 +155,7 @@ app.put(ROUTES.REGISTER_TARGET_STORE, async (req, res) => {
     cd_region,
     nm_region,
     file: file || null,
+    user_id: user_id || null,
     registeredAt: new Date().toISOString()
   };
   registeredTargets.push(record);

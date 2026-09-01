@@ -20,10 +20,21 @@ CvsStoreWidget.StoreSelect = (function ($) {
 
   var FavoritesUtil = CvsStoreWidget.util.FavoritesUtil;
   var StoreSuggest = CvsStoreWidget.util.StoreSuggest;
+  var CookieUtil = CvsStoreWidget.util.CookieUtil;
 
   // APIパスとURL組み立ては cvs-api-config.js に集約（コンテキストパス対応のため）。
   var PATHS = CvsStoreWidget.config.paths;
   var apiUrl = CvsStoreWidget.util.apiUrl;
+
+  // 店舗登録時に送る登録者ユーザーID。config.userId が入っていれば優先、
+  // 無ければ cookie（config.userIdCookie、既定 'initNoEmp'）から読む。
+  function getUserId() {
+    var cfg = CvsStoreWidget.config || {};
+    if (cfg.userId != null && cfg.userId !== '') {
+      return cfg.userId;
+    }
+    return CookieUtil.get(cfg.userIdCookie || 'initNoEmp') || null;
+  }
 
   var DEFAULT_TITLE = '店舗選択';
 
@@ -322,8 +333,9 @@ CvsStoreWidget.StoreSelect = (function ($) {
       return;
     }
 
-    // 新規店舗はIDをサーバー側で採番するため、リクエスト時点ではidを送らない
-    var newPayload = $.extend({ id_cvs_store: null, file: currentFile }, values);
+    // 新規店舗はIDをサーバー側で採番するため、リクエスト時点ではidを送らない。
+    // user_id には登録者のユーザーID（社内アプリでは cookie 'initNoEmp'）を乗せる。
+    var newPayload = $.extend({ id_cvs_store: null, file: currentFile, user_id: getUserId() }, values);
 
     // 登録APIは非冪等（呼ぶたびに新規店舗が作られる）なので、レスポンスが返るまで
     // 送信中フラグ＋OKボタン無効化で連打による二重登録を防ぐ。失敗時のみ解除する。

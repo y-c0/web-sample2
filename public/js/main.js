@@ -55,6 +55,7 @@
     $('#resultPrefectureId').text(store.cd_region);
     $('#resultStoreId').text(store.id_cvs_store ? store.id_cvs_store : '（新規店舗）');
     $('#resultFile').text(store.file ? store.file : '（なし）');
+    $('#resultUserId').text(store.user_id ? store.user_id : '（なし。既存店舗選択時は送らない）');
     $('#selectedResult').show();
     $('#rememberedStoreId').text(lastStoreId != null ? lastStoreId : '（なし）');
   }
@@ -62,6 +63,12 @@
   $(function () {
     updateFavoriteStatus();
     $('#fileParamStatus').text(fileParam ? fileParam : '未指定');
+
+    // デモ用: 社内アプリのログインで入る想定の cookie 'initNoEmp'（登録者ユーザーID）を模擬。
+    // 未設定なら仮の社員番号をセットする。実アプリでは既に存在する前提。
+    if (!CookieUtil.get('initNoEmp')) {
+      CookieUtil.set('initNoEmp', 'EMP0001', 1);
+    }
 
     $('#btnSeedFavorites').on('click', function () {
       FavoritesUtil.saveNames(SAMPLE_FAVORITES);
