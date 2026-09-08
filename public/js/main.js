@@ -30,7 +30,7 @@
   }
 
   var fileParam = getQueryParam('file');
-  var recIdParam = getQueryParam('recId'); // 投稿済み画像ID（任意）。?recId=... で受け取る
+  var recIdParam = getQueryParam('rec_id'); // 投稿済み画像ID（任意）。?rec_id=... で受け取る
 
   // 直近に確定した調査対象店舗のID。実アプリでは呼び出し元（調査結果登録画面など）が
   // DB等に保持し、ポップアップを開き直すときに渡し戻す想定。ここでは変数で模擬する。
@@ -56,7 +56,7 @@
     $('#resultPrefectureId').text(store.cd_region);
     $('#resultStoreId').text(store.id_cvs_store ? store.id_cvs_store : '（新規店舗）');
     $('#resultFile').text(store.file ? store.file : '（なし）');
-    $('#resultRecId').text(store.recId ? store.recId : '（なし）');
+    $('#resultRecId').text(store.rec_id ? store.rec_id : '（なし）');
     $('#resultUserId').text(store.user_id ? store.user_id : '（なし。既存店舗選択時は送らない）');
     $('#selectedResult').show();
     $('#rememberedStoreId').text(lastStoreId != null ? lastStoreId : '（なし）');
@@ -86,7 +86,7 @@
 
     $('#btnOpenStoreSelect').on('click', function () {
       // storeId を渡すと、その店舗を選択済みの状態で開く（初回は null なので無視される）。
-      StoreSelect.open({ file: fileParam, recId: recIdParam, storeId: lastStoreId });
+      StoreSelect.open({ file: fileParam, rec_id: recIdParam, storeId: lastStoreId });
     });
 
     // --- 「社内アプリの既存ダイアログ」に見立てた定義（ウィジェットはここに手を入れない） ---

@@ -341,6 +341,16 @@ theme.css を外すと、お気に入り編集の行番号ラベル（1.〜10.�
 
 ＝＝＝＝＝＝＝
 
+recId → rec_id に修正（他のAPIフィールドの snake_case に合わせる）。
+- open() の引数キー: recId → rec_id
+- PUT /api/stores の body フィールド: recId → rec_id（server.js 受け取り/格納も）
+- デモの URL クエリ: ?recId= → ?rec_id=、画面ラベルも rec_id に
+- README 追記済み
+- JSの内部ローカル変数（currentRecId / recIdParam）と デモHTMLのid は camelCase のまま（私的・表示のみ）
+node --check OK。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

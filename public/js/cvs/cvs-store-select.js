@@ -4,9 +4,9 @@
  * window.CvsStoreWidget.StoreSelect.open(arg) / close() を公開する。
  *   open() の引数:
  *     - 文字列/数値      … 関連ファイルのID or ファイル名（新規店舗登録リクエストに乗せる）
- *     - オブジェクト      … { file, recId, storeId, title, width, height, dialogOptions }
- *                           file  … 関連ファイルのID or ファイル名（任意。新規店舗登録リクエストに乗せる）
- *                           recId … 投稿済み画像のID（任意。新規店舗登録リクエストに乗せる）
+ *     - オブジェクト      … { file, rec_id, storeId, title, width, height, dialogOptions }
+ *                           file   … 関連ファイルのID or ファイル名（任意。新規店舗登録リクエストに乗せる）
+ *                           rec_id … 投稿済み画像のID（任意。新規店舗登録リクエストに乗せる）
  *                           storeId（別名 id_cvs_store）… その店舗を選択済みの状態で開く
  *                           （前回 store-selected で受け取った payload をそのまま渡してもよい）。
  *                           title / width / height / 任意の dialog オプションをその場で上書きできる。
@@ -122,7 +122,7 @@ CvsStoreWidget.StoreSelect = (function ($) {
     var opts = toOpenOptions(arg);
     resetForm();
     currentFile = opts.file || null;
-    currentRecId = opts.recId || null;
+    currentRecId = opts.rec_id || null;
     var storeId = (opts.storeId != null) ? opts.storeId : opts.id_cvs_store;
     applyDialogOptions(opts);
     loadOptionsIfNeeded(function () {
@@ -339,9 +339,9 @@ CvsStoreWidget.StoreSelect = (function ($) {
 
     // 新規店舗はIDをサーバー側で採番するため、リクエスト時点ではidを送らない。
     // user_id には登録者のユーザーID（社内アプリでは cookie 'initNoEmp'）を乗せる。
-    // file / recId は open() で受け取った関連ファイル・投稿済み画像ID（いずれも任意）。
+    // file / rec_id は open() で受け取った関連ファイル・投稿済み画像ID（いずれも任意）。
     var newPayload = $.extend(
-      { id_cvs_store: null, file: currentFile, recId: currentRecId, user_id: getUserId() },
+      { id_cvs_store: null, file: currentFile, rec_id: currentRecId, user_id: getUserId() },
       values
     );
 

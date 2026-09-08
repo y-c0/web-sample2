@@ -102,7 +102,7 @@ CvsStoreWidget.StoreSelect.open(fileParam);
 // オブジェクトで詳細指定
 CvsStoreWidget.StoreSelect.open({
   file: fileParam,        // 関連ファイルID/名（任意）。新規店舗登録リクエストに乗る
-  recId: recId,           // 投稿済み画像ID（任意）。同じく新規店舗登録リクエストに乗る
+  rec_id: recId,          // 投稿済み画像ID（任意）。同じく新規店舗登録リクエストに乗る
   storeId: prevStoreId,   // ★ 前回選んだ店舗IDを渡すと、その店舗を選択済みの状態で開く
   title: '店舗選択',
   width: 560,
@@ -247,7 +247,7 @@ $(document).on('favorites-updated', function (e, savedNames) {
   既定で cookie `initNoEmp` から読む。cookie 名を変えたい場合は
   `CvsStoreWidget.config.userIdCookie`、値を直接渡したい場合は `CvsStoreWidget.config.userId` をセットする
   （`cvs-api-config.js` の後、`th:inline` 等で）。既存店舗を選んだだけの場合は登録APIを呼ばないため送られない。
-- **`PUT /api/stores` のbodyには `file` と `recId`（`open()` で受け取った関連ファイルID/名と
+- **`PUT /api/stores` のbodyには `file` と `rec_id`（`open()` で受け取った関連ファイルID/名と
   投稿済み画像ID。いずれも任意、未指定なら `null`）も入る。** 既存店舗選択時は送られない。
 - パスが社内APIと異なる場合は `cvs-api-config.js` の `config.paths` を書き換える。
 
