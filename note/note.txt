@@ -324,6 +324,23 @@ theme.css を外すと、お気に入り編集の行番号ラベル（1.〜10.�
 
 ＝＝＝＝＝＝＝
 
+ポップアップを開くとき file の他に任意で recId（投稿済み画像ID）を渡し、
+それを店舗登録APIにも渡す。
+
+実施内容（file と同じ扱いで recId を追加）
+- cvs-store-select.js: currentRecId を追加。open() の opts.recId を currentRecId に格納
+  （open() 引数説明も更新）。新規店舗登録の newPayload に recId: currentRecId を追加。
+- server.js: PUT /api/stores で recId を受け取り record に格納（{records} にも入る）。
+- main.js: ?recId= クエリを取得し open({file, recId, storeId}) で渡す。結果表に recId 表示、
+  ページ上部に recId パラメータの現在値表示。
+- index.html: ?recId= の説明と結果表「投稿画像ID(recId)」行を追加。
+- integration/README.md: open の recId 引数、PUT body の file/recId を明記。
+- 既存店舗選択（登録API非呼び出し）は変更なし。API側フィールド名は recId（file と同じく引数名＝送信キー）。
+
+確認: node --check OK。モックで新規登録 → PUT body と records に recId を確認。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

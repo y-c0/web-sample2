@@ -17,7 +17,8 @@
   <p class="page-desc">
     実際のアプリでは調査結果登録画面などから起動される想定の「調査対象店舗を選ぶ」ポップアップの動作確認用ページです。<br>
     お気に入り店舗のCookieは本来は別画面で設定される前提のため、下のボタンで検証用にセットできます。<br>
-    このページはURLの <code>?file=...</code> パラメータで関連ファイル（ファイルIDまたはファイル名。アップロード自体は別処理）を受け取り、店舗登録時のリクエストに含めます。現在の値: <span id="fileParamStatus"></span>
+    このページはURLの <code>?file=...</code> パラメータで関連ファイル（ファイルIDまたはファイル名。アップロード自体は別処理）を受け取り、店舗登録時のリクエストに含めます。現在の値: <span id="fileParamStatus"></span><br>
+    <code>?recId=...</code> パラメータで投稿済み画像ID（任意）を受け取り、同じく店舗登録リクエストに含めます。現在の値: <span id="recIdParamStatus"></span>
   </p>
 
   <section class="panel">
@@ -50,6 +51,7 @@
           <tr><th>都道府県ID</th><td id="resultPrefectureId"></td></tr>
           <tr><th>店舗マスタID</th><td id="resultStoreId"></td></tr>
           <tr><th>関連ファイル</th><td id="resultFile"></td></tr>
+          <tr><th>投稿画像ID(recId)</th><td id="resultRecId"></td></tr>
           <tr><th>登録者(user_id)</th><td id="resultUserId"></td></tr>
         </tbody>
       </table>
