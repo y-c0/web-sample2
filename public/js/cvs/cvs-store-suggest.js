@@ -59,7 +59,14 @@ CvsStoreWidget.util.StoreSuggest = (function ($) {
       var openUp = naturalH > spaceBelow && spaceAbove > spaceBelow;
       var avail = Math.max(80, openUp ? spaceAbove : spaceBelow);
 
-      $list.css('maxHeight', Math.min(220, avail) + 'px');
+      // max-height と一緒に overflow もインラインで固定する。overflow を layout.css 側だけに
+      // 置くと、埋め込み先アプリの ul リセット（overflow:visible 等）に負けて、箱の高さは
+      // max-height で止まるのに はみ出した候補がその外に描画される（背景からテキストがはみ出す）。
+      $list.css({
+        maxHeight: Math.min(220, avail) + 'px',
+        overflowY: 'auto',
+        overflowX: 'hidden'
+      });
       if (openUp) {
         $list.css({ top: 'auto', bottom: Math.round(viewportH - rect.top + GAP) + 'px' });
       }

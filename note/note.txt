@@ -351,6 +351,21 @@ node --check OK。
 
 ＝＝＝＝＝＝＝
 
+店舗名サジェスト、候補件数が多いと背景からテキストがはみ出す。
+原因: max-height は positionList() がインラインで効かせているが、スクロールさせる
+overflow-y:auto は layout.css だけにあり、埋め込み先アプリの ul リセット
+（overflow:visible 等）に負けて、箱は max-height で止まるのにはみ出した候補が外に描画される。
+
+対処
+- cvs-store-suggest.js positionList(): maxHeight を設定している .css() で
+  overflowY:'auto' / overflowX:'hidden' も一緒にインライン設定（アプリのリセットに負けない）。
+- integration/README.md 3-3: theme.css 非使用時のサンプルにも max-height/overflow-y/overflow-x を追記。
+- cvs-store-widget.layout.css: JSがインラインでも設定する旨のコメント追記（layoutはフォールバック）。
+
+node --check OK。
+
+＝＝＝＝＝＝＝
+
 
 note:
 

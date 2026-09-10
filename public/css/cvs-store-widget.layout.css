@@ -54,6 +54,8 @@
      実座標から設定する（下に入りきらなければ上向きに開く）。 */
   position: fixed;
   z-index: 10000; /* jQuery UI dialog（既定 z-index 100 前後）より前面 */
+  /* max-height / overflow は cvs-store-suggest.js が候補表示時にインラインでも設定する
+     （埋め込み先アプリの ul リセットに負けないため）。ここはJS未実行時のフォールバック。 */
   max-height: 220px;
   overflow-y: auto;
   overflow-x: hidden;

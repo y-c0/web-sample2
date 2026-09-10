@@ -184,6 +184,10 @@ CvsStoreWidget.FavoriteEdit.save();   // Cookie 保存 + favorites-updated 発�
   border-radius:2px;
   box-shadow:0 2px 4px rgba(0,0,0,.2);
   font:inherit;
+  /* 候補が多いときスクロールさせる。アプリの ul リセットに負けて overflow:visible に
+     戻ると、はみ出した候補が箱の外に描画される（背景からテキストがはみ出す）ので
+     ここでも明示する（cvs-store-suggest.js もインラインで overflow を固定している）。 */
+  max-height:220px; overflow-y:auto; overflow-x:hidden;
 }
 .cvs-store-widget .cvs-suggest-list > li.cvs-suggest-item{
   padding:4px 8px; cursor:pointer;
